@@ -803,6 +803,9 @@ function relationship_list_box( $p_default_rel_type = BUG_REL_ANY, $p_select_nam
  * @return void
  */
 function relationship_view_box( $p_bug_id ) {
+	$t_show_project = false;
+	$t_relationship_all = relationship_get_all( $p_bug_id, $t_show_project );
+	if( !bug_is_readonly( $p_bug_id ) && access_has_bug_level( config_get( 'update_bug_threshold' ), $p_bug_id ) || count( $t_relationship_all ) > 0 ) {
 	?>
 	<div class="col-md-12 col-xs-12">
 	<div class="space-10"></div>
@@ -867,4 +870,5 @@ function relationship_view_box( $p_bug_id ) {
 </div>
 
 <?php
+	}
 }
