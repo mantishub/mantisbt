@@ -1046,17 +1046,17 @@ function bug_view_relationship_view_box( $p_bug_id, $p_can_update ) {
 	$t_block_icon = $t_collapse_block ? 'fa-chevron-down' : 'fa-chevron-up';
 ?>
 	<div id="relationships" class="widget-box widget-color-blue2 <?php echo $t_block_css ?>">
-		<div class="widget-header widget-header-small">
-			<h4 class="widget-title lighter">
-				<i class="ace-icon fa fa-sitemap"></i>
-				<?php echo lang_get( 'bug_relationships' ) ?>
-			</h4>
-			<div class="widget-toolbar">
-				<a data-action="collapse" href="#">
-					<i class="1 ace-icon fa <?php echo $t_block_icon ?> bigger-125"></i>
-				</a>
-			</div>
+	<div class="widget-header widget-header-small">
+		<h4 class="widget-title lighter">
+			<i class="ace-icon fa fa-sitemap"></i>
+			<?php echo lang_get( 'bug_relationships' ) ?>
+		</h4>
+		<div class="widget-toolbar">
+			<a data-action="collapse" href="#">
+				<i class="1 ace-icon fa <?php echo $t_block_icon ?> bigger-125"></i>
+			</a>
 		</div>
+	</div>
 	<div class="widget-body">
 <?php
 	if( $t_show_top_div ) {
@@ -1090,11 +1090,30 @@ function bug_view_relationship_view_box( $p_bug_id, $p_can_update ) {
 ?>
 		</div>
 
+<?php
+		if( $p_can_update ) {
+?>
+		<form method="post" action="bug_relationship_add.php" class="form-inline noprint">
+		<?php echo form_security_field( 'bug_relationship_add' ) ?>
+		<input type="hidden" name="src_bug_id" value="<?php echo $p_bug_id?>" />
+		<label class="inline"><?php echo lang_get( 'this_bug' ) ?>&#160;&#160;</label>
+		<?php print_relationship_list_box( config_get( 'default_bug_relationship' ) )?>
+		<input type="text" class="input-sm" name="dest_bug_id" value="" />
+		<input type="submit" class="btn btn-primary btn-sm btn-white btn-round" name="add_relationship" value="<?php echo lang_get( 'add_new_relationship_button' )?>" />
+		</form>
+<?php
+		} # can update
+?>
 		</div>
 <?php
 	} # show top div
 ?>
 
+		<div class="widget-main no-padding">
+			<div class="table-responsive">
+				<?php echo $t_relationships_html; ?>
+			</div>
+		</div>
 	</div>
 	<?php
 		$t_relationships = bug_view_relationship_get_array($p_bug_id);
@@ -1110,9 +1129,9 @@ function bug_view_relationship_view_box( $p_bug_id, $p_can_update ) {
 		data-bug_id='<?php echo $p_bug_id ?>'
 		data-relationships='<?php echo json_encode($t_relationships) ?>'
 		data-can_update=<?php echo $p_can_update?>
-		data-warning='<?php echo $t_warning?>'
+		data-warning='<?php echo isset($t_warning) ? $t_warning : '' ?>'
 	></div>
-	<script type="text/javascript" src="client/js/dist/bundle.js"></script>
+	<script type="text/javascript" src="js/mantis.js"></script>
 	</div>
 	</div>
 <?php

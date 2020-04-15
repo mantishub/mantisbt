@@ -9,8 +9,14 @@
     "pack": "webpack --config webpack.config.js",
     "minify": "minify ../../js/mantis.js"
   },
-  "author": "Walter Gar <youfeel718@gmail.com>",
-  "license": "ISC",
+  "authors": [
+    {
+        "name": "MantisBT Team",
+        "email": "mantisbt-dev@lists.sourceforge.net",
+        "homepage": "https://www.mantisbt.org"
+    }
+],
+  "license": "GPL-2.0-or-later",
   "dependencies": {
     "axios": "^0.19.2",
     "react": "^16.13.1",

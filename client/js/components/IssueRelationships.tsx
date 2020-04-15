@@ -1,5 +1,5 @@
 import React from 'react';
-import { IssueRelationshipAdd } from '../services';
+import * as RelationshipService from '../services';
 
 type Props = {
   relationships?: any;
@@ -13,6 +13,8 @@ type States = {
   bugId: number,
   canUpdate: boolean,
   warning?: string,
+  reqRelTyp: RelationshipType,
+  reqRelDestIds: string,
 }
 
 enum RelationshipType {
@@ -33,27 +35,59 @@ export class IssueRelationships extends React.Component<Props, States> {
       bugId: parseInt(this.props.bug_id) || 0,
       canUpdate: !!parseInt(this.props.can_update),
       warning: this.props.warning,
+      reqRelTyp: RelationshipType.RELATED_TO,
+      reqRelDestIds: ''
     }
   }
 
   async handleRelationshipAdd() {
-    await IssueRelationshipAdd(
-      this.state.bugId,
-      {
-        type: { id: 2 },
-        issue: { id: '0000004' },
-      }
-    );
+    try {
+      this.state.reqRelDestIds.split('|').forEach(async (id) => {
+        const relationships = await RelationshipService.IssueRelationshipAdd(
+          this.state.bugId,
+          {
+            type: { id: this.state.reqRelTyp },
+            issue: { id: id },
+          }
+        );
+        this.setState({ relationships });
+      });
+    } catch (error) {
+      
+    }
+    this.setState({
+      reqRelDestIds: '',
+      reqRelTyp: RelationshipType.RELATED_TO
+    });
+    this.forceUpdate();
+  }
+
+  async handleRelationshipDelete(relId: number) {
+    try {
+      const relationships = await RelationshipService.IssueRelationshipDelete(
+        this.state.bugId,
+        relId
+      );
+      this.setState({ relationships });
+    } catch (error) {
+
+    }
+    this.forceUpdate();
   }
 
   render() {
-    const { relationships, canUpdate, warning } = this.state;
+    const { relationships, canUpdate, warning, reqRelDestIds, reqRelTyp } = this.state;
     return relationships.length ? (
       <React.Fragment>
         <div className='widget-toolbox padding-8 clearfix'>
           {canUpdate && <div className='form-inline noprint'>
             <label className='inline'>Current issue&nbsp;&nbsp;</label>
-            <select className='input-sm' name='rel_type'>
+            <select
+              className='input-sm'
+              name='rel_type'
+              onChange={(e) => this.setState({ reqRelTyp: parseInt(e.target.value) })}
+              value={reqRelTyp}
+            >
               <option value={RelationshipType.PARENT_OF}>parent of</option>
               <option value={RelationshipType.CHILD_OF}>child of</option>
               <option value={RelationshipType.DUPLICATE_OF}>duplicate of</option>
@@ -64,9 +98,8 @@ export class IssueRelationships extends React.Component<Props, States> {
             <input
               type='text'
               className='input-sm'
-              onChange={() => {
-
-              }}
+              onChange={(e) => this.setState({ reqRelDestIds: e.target.value })}
+              value={reqRelDestIds}
             />
             &nbsp;
             <button
@@ -98,7 +131,7 @@ export class IssueRelationships extends React.Component<Props, States> {
                       {relationship['is_removal'] && (
                         <a
                           className='red noprint zoom-130'
-                          onClick={() => {}}
+                          onClick={() => this.handleRelationshipDelete(relationship['id'])}
                         >
                           <i className='ace-icon fa fa-trash-o bigger-115'></i>
                         </a>
