@@ -5,8 +5,7 @@
   "main": "index.tsx",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack",
-    "pack": "webpack --config webpack.config.js",
+    "build": "webpack --config webpack.config.js",
     "minify": "minify ../../js/mantis.js"
   },
   "authors": [
