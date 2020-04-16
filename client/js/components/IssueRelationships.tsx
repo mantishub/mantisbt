@@ -1,18 +1,15 @@
 import React from 'react';
-import * as RelationshipService from '../services';
+import { IssueService } from '../services';
 
 type Props = {
-  relationships?: any;
-  bug_id?: any;
-  can_update?: any;
+  relationships: Array<any>;
+  issueId: number;
+  canUpdate: boolean;
   warning?: string;
 }
 
 type States = {
   relationships: Array<any>,
-  bugId: number,
-  canUpdate: boolean,
-  warning?: string,
   reqRelTyp: RelationshipType,
   reqRelDestIds: string,
 }
@@ -27,29 +24,26 @@ enum RelationshipType {
 
 export class IssueRelationships extends React.Component<Props, States> {
 
+  protected readonly Service: IssueService;
+
   constructor(props: Props) {
     super(props);
 
     this.state = {
-      relationships: JSON.parse(this.props.relationships) || [],
-      bugId: parseInt(this.props.bug_id) || 0,
-      canUpdate: !!parseInt(this.props.can_update),
-      warning: this.props.warning,
+      relationships: props.relationships,
       reqRelTyp: RelationshipType.RELATED_TO,
       reqRelDestIds: ''
-    }
+    };
+    this.Service = new IssueService('http://localhost:8888/mantisbt', props.issueId);
   }
 
   async handleRelationshipAdd() {
     try {
       this.state.reqRelDestIds.split('|').forEach(async (id) => {
-        const relationships = await RelationshipService.IssueRelationshipAdd(
-          this.state.bugId,
-          {
-            type: { id: this.state.reqRelTyp },
-            issue: { id: id },
-          }
-        );
+        const relationships = await this.Service.RelationshipAdd({
+          type: { id: this.state.reqRelTyp },
+          issue: { id: id },
+        });
         this.setState({ relationships });
       });
     } catch (error) {
@@ -64,10 +58,7 @@ export class IssueRelationships extends React.Component<Props, States> {
 
   async handleRelationshipDelete(relId: number) {
     try {
-      const relationships = await RelationshipService.IssueRelationshipDelete(
-        this.state.bugId,
-        relId
-      );
+      const relationships = await this.Service.RelationshipDelete(relId);
       this.setState({ relationships });
     } catch (error) {
 
@@ -76,7 +67,8 @@ export class IssueRelationships extends React.Component<Props, States> {
   }
 
   render() {
-    const { relationships, canUpdate, warning, reqRelDestIds, reqRelTyp } = this.state;
+    const { relationships, reqRelDestIds, reqRelTyp } = this.state;
+    const { canUpdate, warning } = this.props;
     return relationships.length ? (
       <React.Fragment>
         <div className='widget-toolbox padding-8 clearfix'>

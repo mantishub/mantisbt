@@ -110,6 +110,12 @@ $t_top_buttons_enabled = !$t_force_readonly && ( $t_action_button_position == PO
 $t_bottom_buttons_enabled = !$t_force_readonly && ( $t_action_button_position == POSITION_BOTTOM || $t_action_button_position == POSITION_BOTH );
 
 #
+# Emit issue information to hidden div
+#
+
+echo '<div class="hidden" id="issue-data" data-issue=' . "'" . json_encode($t_result) . "'" . '></div>';
+
+#
 # Start of Template
 #
 
@@ -978,8 +984,6 @@ function bug_view_relationship_get_summary_html( $p_bug_id ) {
 
 	$t_relationship_all = relationship_get_all( $p_bug_id, $t_show_project );
 	$t_relationship_all_count = count( $t_relationship_all );
-
-	$t_relationships = array();
 
 	# prepare the relationships table
 	for( $i = 0; $i < $t_relationship_all_count; $i++ ) {

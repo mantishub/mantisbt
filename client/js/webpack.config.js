@@ -10,11 +10,6 @@ module.exports = {
     path: path.resolve(__dirname, '../../js'),
     publicPath: '/'
   },
-  devServer: {
-    publicPath: '/',
-    contentBase: './public',
-    hot: true,
-  },
   resolve: {
     extensions: ['.ts', '.tsx', '.js']
   },
