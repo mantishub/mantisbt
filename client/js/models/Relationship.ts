@@ -1,0 +1,13 @@
+import { Issue } from './issue';
+
+export interface RelationshipType {
+  id: number;
+  name: string;
+  label: string;
+}
+
+export interface Relationship {
+  id: number;
+  type: RelationshipType;
+  issue: Issue;
+}

@@ -10,11 +10,11 @@ type Props = {
 
 type States = {
   relationships: Array<any>,
-  reqRelTyp: RelationshipType,
+  reqRelTyp: RelationshipTypeEnum,
   reqRelDestIds: string,
 }
 
-enum RelationshipType {
+enum RelationshipTypeEnum {
   DUPLICATE_OF = 0,
   RELATED_TO = 1,
   PARENT_OF = 2,
@@ -31,7 +31,7 @@ export class IssueRelationships extends React.Component<Props, States> {
 
     this.state = {
       relationships: props.relationships,
-      reqRelTyp: RelationshipType.RELATED_TO,
+      reqRelTyp: RelationshipTypeEnum.RELATED_TO,
       reqRelDestIds: ''
     };
     this.Service = new IssueService('http://localhost:8888/mantisbt', props.issueId);
@@ -51,7 +51,7 @@ export class IssueRelationships extends React.Component<Props, States> {
     }
     this.setState({
       reqRelDestIds: '',
-      reqRelTyp: RelationshipType.RELATED_TO
+      reqRelTyp: RelationshipTypeEnum.RELATED_TO
     });
     this.forceUpdate();
   }
@@ -80,11 +80,11 @@ export class IssueRelationships extends React.Component<Props, States> {
               onChange={(e) => this.setState({ reqRelTyp: parseInt(e.target.value) })}
               value={reqRelTyp}
             >
-              <option value={RelationshipType.PARENT_OF}>parent of</option>
-              <option value={RelationshipType.CHILD_OF}>child of</option>
-              <option value={RelationshipType.DUPLICATE_OF}>duplicate of</option>
-              <option value={RelationshipType.HAS_DUPLICATE}>has duplicate</option>
-              <option value={RelationshipType.RELATED_TO}>related to</option>
+              <option value={RelationshipTypeEnum.PARENT_OF}>parent of</option>
+              <option value={RelationshipTypeEnum.CHILD_OF}>child of</option>
+              <option value={RelationshipTypeEnum.DUPLICATE_OF}>duplicate of</option>
+              <option value={RelationshipTypeEnum.HAS_DUPLICATE}>has duplicate</option>
+              <option value={RelationshipTypeEnum.RELATED_TO}>related to</option>
             </select>
             &nbsp;
             <input
