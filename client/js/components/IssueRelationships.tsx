@@ -6,8 +6,8 @@ type Props = {
   relationships: Array<Relationship>;
   issueId: number;
   canUpdate: boolean;
-  warning?: string;
   localizedStrings: Array<any>;
+  configs: Array<any>;
 }
 
 type States = {
@@ -39,12 +39,17 @@ export class IssueRelationships extends React.Component<Props, States> {
     this.Service = new IssueService(props.issueId);
   }
 
-  getLocalizedString(string: string) {
-    const index = this.props.localizedStrings.findIndex(x => x.name === string);
+  getLocalizedString(text: string) {
+    const index = this.props.localizedStrings.findIndex(x => x.name === text);
     if (!index) return undefined;
     return this.props.localizedStrings[index].localized;
   }
 
+  getConfigValue(option: string) {
+    const index = this.props.configs.findIndex(x => x.option === option);
+    if (!index) return undefined;
+    return this.props.configs[index].value;
+  }
 
   async handleRelationshipAdd() {
     try {
@@ -74,7 +79,7 @@ export class IssueRelationships extends React.Component<Props, States> {
 
   render() {
     const { relationships, reqRelDestIds, reqRelTyp } = this.state;
-    const { canUpdate, warning } = this.props;
+    const { canUpdate } = this.props;
     return relationships.length ? (
       <React.Fragment>
         <div className='widget-toolbox padding-8 clearfix'>
@@ -114,8 +119,14 @@ export class IssueRelationships extends React.Component<Props, States> {
               <tbody>
                 {relationships.map((relationship: Relationship, key: number) => (
                   <tr key={key}>
-                    <td><span className='nowrap'>{relationship.type.label}</span></td>
-                    <td><a href={`view.php?id=${relationship.issue.id}`}>{relationship.issue.id}</a></td>
+                    <td>
+                      <span className='nowrap'>{relationship.type.label}</span>
+                    </td>
+                    <td>
+                      <a href={`view.php?id=${relationship.issue.id}`}>
+                        {'0'.repeat(Math.max(this.getConfigValue('display_bug_padding') - relationship.issue.id.toString().length, 0)) + relationship.issue.id}
+                      </a>
+                    </td>
                     <td>
                       <i className={`fa fa-square fa-status-box`} style={{ color: relationship.issue.status?.color }}></i>
                       &nbsp;
@@ -139,11 +150,6 @@ export class IssueRelationships extends React.Component<Props, States> {
                     </td>
                   </tr>
                 ))}
-                {warning && (
-                  <tr>
-                    <td colSpan={5}><strong>{warning}</strong></td>
-                  </tr>
-                )}
               </tbody>
             </table>
           </div>
