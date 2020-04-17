@@ -12,27 +12,6 @@ export class IssueService {
     this.issueId = issueId;
   }
 
-  /**
-   *  Issue Relationship Services
-   */
-  public static RelationshipsParse(relationships: Array<any>) {
-    return relationships.map(rel => {
-      const issueId = rel.issue.id as number;
-      return {
-        id: rel.id,
-        type: rel.type.label,
-        issue_id: '0'.repeat(Math.max(7 - issueId.toString().length, 0)) + issueId,
-        issue_status_label: rel.issue.status.label,
-        issue_status_css: `status-${rel.issue.status.id}-fg`,
-        issue_resolution: rel.issue.resolution.name,
-        issue_summary: rel.issue.summary,
-        issue_handler_id: rel.issue.handler.id,
-        issue_handler_name: rel.issue.handler.name,
-        is_removal: true,
-      }
-    });
-  }
-
   public async RelationshipAdd(request: IssueRelationshipAddRequest) {
     const url: string = `api/rest/issues/${this.issueId}/relationships`;
 
@@ -47,7 +26,6 @@ export class IssueService {
         throw new Error(e);
     }
 
-    //const relationships =  IssueService.RelationshipsParse(response.data.issue.relationships);
     return response.data.issue.relationships;
   }
 
@@ -65,7 +43,6 @@ export class IssueService {
         throw new Error(e);
     }
   
-    //const relationships =  IssueService.RelationshipsParse(response.data.issue.relationships);
     return response.data.issue.relationships || [];
   }
 
