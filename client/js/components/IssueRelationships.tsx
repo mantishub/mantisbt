@@ -3,16 +3,51 @@ import { IssueService } from '../services';
 import { Relationship } from '../models';
 
 type Props = {
-  relationships: Array<Relationship>;
-  issueId: number;
+  /**
+   *  The flag checking issue can be updated
+   */
   canUpdate: boolean;
-  localizedStrings: Array<any>;
+
+  /**
+   *  Config values array from div configs-data
+   */
   configs: Array<any>;
+
+  /**
+   *  Id of issue
+   */
+  issueId: number;
+
+  /**
+   *  Localized strings array from div strings-data
+   */
+  localizedStrings: Array<any>;
+
+  /**
+   *  Relationships array from div issue-data
+   */
+  relationships: Array<Relationship>;
+
+  /**
+   *  Relationship buttons. Rel graph, Dependency graph, etc
+   */
+  relationshipButtons: Array<any>;
 }
 
 type States = {
+  /**
+   *  Relationships array
+   */
   relationships: Array<Relationship>,
+
+  /**
+   *  Relationship type selected in Add form
+   */
   reqRelTyp: RelationshipTypeEnum,
+
+  /**
+   *  Relationship dest ids entered in Add form
+   */
   reqRelDestIds: string,
 }
 
@@ -79,10 +114,17 @@ export class IssueRelationships extends React.Component<Props, States> {
 
   render() {
     const { relationships, reqRelDestIds, reqRelTyp } = this.state;
-    const { canUpdate } = this.props;
+    const { canUpdate, relationshipButtons } = this.props;
     return relationships.length ? (
       <React.Fragment>
         <div className='widget-toolbox padding-8 clearfix'>
+          {Object.entries(relationshipButtons).length && (
+            <div className='btn-group pull-right noprint'>
+              {Object.entries(relationshipButtons).map(([key, value]) => (
+                <a className='btn btn-primary btn-white btn-round btn-sm' href={value}>{key}</a>
+              ))}
+            </div>
+          )}
           {canUpdate && <div className='form-inline noprint'>
             <label className='inline'>{this.getLocalizedString('this_bug')}&nbsp;&nbsp;</label>
             <select
