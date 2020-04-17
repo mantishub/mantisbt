@@ -102,7 +102,7 @@ $t_cmd = new LocalizedStringsGetCommand( $t_data );
 $t_strings_command_results = $t_cmd->execute();
 
 # Get config options
-$t_configs = array( 'relationship_graph_enable', 'relationship_graph_view_on_click' );
+$t_configs = array( 'relationship_graph_view_on_click' );
 $t_data = array( 'query' => array( 'option' => $t_configs ) );
 $t_cmd = new ConfigsGetCommand( $t_data );
 $t_configs_command_results = $t_cmd->execute();
@@ -121,6 +121,8 @@ $t_bugslist = gpc_get_cookie( config_get_global( 'bug_list_cookie' ), false );
 $t_top_buttons_enabled = !$t_force_readonly && ( $t_action_button_position == POSITION_TOP || $t_action_button_position == POSITION_BOTH );
 $t_bottom_buttons_enabled = !$t_force_readonly && ( $t_action_button_position == POSITION_BOTTOM || $t_action_button_position == POSITION_BOTH );
 
+$t_relationship_buttons = relationship_buttons( $f_issue_id );
+
 #
 # Emit issue information to hidden div
 #
@@ -128,6 +130,7 @@ $t_bottom_buttons_enabled = !$t_force_readonly && ( $t_action_button_position ==
 echo '<div class="hidden" id="issue-data" data-issue=' . "'" . json_encode( $t_view_command_result ) . "'" . '></div>';
 echo '<div class="hidden" id="strings-data" data-strings=' . "'" . json_encode( $t_strings_command_results ) . "'" . '></div>';
 echo '<div class="hidden" id="configs-data" data-configs=' . "'" . json_encode( $t_configs_command_results ) . "'" . '></div>';
+echo '<div class="hidden" id="relationship-buttons-data" data-relationship-buttons=' . "'" . json_encode( $t_relationship_buttons ) . "'" . '></div>';
 
 #
 # Start of Template
@@ -945,6 +948,37 @@ function bug_view_relationship_get_summary_html( $p_bug_id ) {
 	}
 
 	return $t_summary;
+}
+
+/**
+ * Get array of buttons to show in the relationship box.  This will involve buttons for core
+ * features that are controlled by config options, as well as buttons added by Mantis extensions.
+ * 
+ * @return array The array of buttons with key being label, and value being link.
+ */
+function relationship_buttons( $p_issue_id ) {
+	$t_event_buttons = event_signal( 'EVENT_MENU_ISSUE_RELATIONSHIP', $p_issue_id );
+	$t_relationship_graph = ON == config_get( 'relationship_graph_enable' );
+
+	# Default relationship buttons
+	$t_buttons = array();
+	if( $t_relationship_graph ) {
+		$t_buttons[lang_get( 'relation_graph' )] =
+			'bug_relationship_graph.php?bug_id=' . $p_issue_id . '&graph=relation';
+		$t_buttons[lang_get( 'dependency_graph' )] =
+			'bug_relationship_graph.php?bug_id=' . $p_issue_id . '&graph=dependency';
+	}
+
+	# Plugin-added buttons
+	foreach( $t_event_buttons as $t_plugin => $t_plugin_buttons ) {
+		foreach( $t_plugin_buttons as $t_callback => $t_callback_buttons ) {
+			if( is_array( $t_callback_buttons ) ) {
+				$t_buttons = array_merge( $t_buttons, $t_callback_buttons );
+			}
+		}
+	}
+
+	return $t_buttons;
 }
 
 /**
