@@ -1028,7 +1028,6 @@ function bug_view_relationship_view_box( $p_bug_id, $p_can_update ) {
 		</div>
 	</div>
 	<div class="widget-body" id="relationships-body"></div>
-	<script type="text/javascript" src="js/mantis.js"></script>
 	</div>
 	</div>
 <?php
