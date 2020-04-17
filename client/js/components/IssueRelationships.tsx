@@ -134,42 +134,44 @@ export class IssueRelationships extends React.Component<Props, States> {
       <React.Fragment>
         {(canUpdate || relationshipButtons.length) &&
         <div className='widget-toolbox padding-8 clearfix'>
-          {relationshipButtons.length && (
+          {relationshipButtons.length ? (
             <div className='btn-group pull-right noprint'>
               {relationshipButtons.map(([key, value]) => (
                 <a className='btn btn-primary btn-white btn-round btn-sm' href={value}>{key}</a>
               ))}
             </div>
-          )}
-          {canUpdate && <div className='form-inline noprint'>
-            <label className='inline'>{this.getLocalizedString('this_bug')}&nbsp;&nbsp;</label>
-            <select
-              className='input-sm'
-              name='rel_type'
-              onChange={(e) => this.setState({ reqRelTyp: parseInt(e.target.value) })}
-              value={reqRelTyp}
-            >
-              <option value={RelationshipTypeEnum.PARENT_OF}>{this.getLocalizedString('dependant_on')}</option>
-              <option value={RelationshipTypeEnum.CHILD_OF}>{this.getLocalizedString('blocks')}</option>
-              <option value={RelationshipTypeEnum.DUPLICATE_OF}>{this.getLocalizedString('duplicate_of')}</option>
-              <option value={RelationshipTypeEnum.HAS_DUPLICATE}>{this.getLocalizedString('has_duplicate')}</option>
-              <option value={RelationshipTypeEnum.RELATED_TO}>{this.getLocalizedString('related_to')}</option>
-            </select>
-            &nbsp;
-            <input
-              type='text'
-              className='input-sm'
-              onChange={(e) => this.setState({ reqRelDestIds: e.target.value })}
-              value={reqRelDestIds}
-            />
-            &nbsp;
-            <button
-              onClick={() => this.handleRelationshipAdd()}
-              className='btn btn-primary btn-sm btn-white btn-round'
-            >
-              {this.getLocalizedString('add_new_relationship_button')}
-            </button>
-          </div>}
+          ) : null}
+          {canUpdate ? (
+            <div className='form-inline noprint'>
+              <label className='inline'>{this.getLocalizedString('this_bug')}&nbsp;&nbsp;</label>
+              <select
+                className='input-sm'
+                name='rel_type'
+                onChange={(e) => this.setState({ reqRelTyp: parseInt(e.target.value) })}
+                value={reqRelTyp}
+              >
+                <option value={RelationshipTypeEnum.PARENT_OF}>{this.getLocalizedString('dependant_on')}</option>
+                <option value={RelationshipTypeEnum.CHILD_OF}>{this.getLocalizedString('blocks')}</option>
+                <option value={RelationshipTypeEnum.DUPLICATE_OF}>{this.getLocalizedString('duplicate_of')}</option>
+                <option value={RelationshipTypeEnum.HAS_DUPLICATE}>{this.getLocalizedString('has_duplicate')}</option>
+                <option value={RelationshipTypeEnum.RELATED_TO}>{this.getLocalizedString('related_to')}</option>
+              </select>
+              &nbsp;
+              <input
+                type='text'
+                className='input-sm'
+                onChange={(e) => this.setState({ reqRelDestIds: e.target.value })}
+                value={reqRelDestIds}
+              />
+              &nbsp;
+              <button
+                onClick={() => this.handleRelationshipAdd()}
+                className='btn btn-primary btn-sm btn-white btn-round'
+              >
+                {this.getLocalizedString('add_new_relationship_button')}
+              </button>
+            </div>
+          ) : null}
         </div>}
         <div className='widget-main no-padding'>
           <div className='table-responsive'>

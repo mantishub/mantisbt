@@ -936,37 +936,6 @@ function bug_view_relationship_get_details( $p_bug_id, BugRelationshipData $p_re
 }
 
 /**
- * print ALL the RELATIONSHIPS OF A SPECIFIC BUG
- * @param integer $p_bug_id A bug identifier.
- * @return string
- */
-function bug_view_relationship_get_summary_html( $p_bug_id ) {
-	$t_summary = '';
-
-	# A variable that will be set by the following call to indicate if relationships belong
-	# to multiple projects.
-	$t_show_project = false;
-
-	$t_relationship_all = relationship_get_all( $p_bug_id, $t_show_project );
-	$t_relationship_all_count = count( $t_relationship_all );
-
-	# prepare the relationships table
-	for( $i = 0; $i < $t_relationship_all_count; $i++ ) {
-		$t_summary .= bug_view_relationship_get_details( $p_bug_id, $t_relationship_all[$i], /* html_preview */ false, $t_show_project );
-	}
-
-	if( !is_blank( $t_summary ) ) {
-		if( relationship_can_resolve_bug( $p_bug_id ) == false ) {
-			$t_summary .= '<tr><td colspan="' . ( 5 + $t_show_project ) . '"><strong>' .
-				lang_get( 'relationship_warning_blocking_bugs_not_resolved' ) . '</strong></td></tr>';
-		}
-		$t_summary = '<table class="table table-bordered table-condensed table-hover">' . $t_summary . '</table>';
-	}
-
-	return $t_summary;
-}
-
-/**
  * Get array of buttons to show in the relationship box.  This will involve buttons for core
  * features that are controlled by config options, as well as buttons added by Mantis extensions.
  * 
