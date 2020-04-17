@@ -6,11 +6,9 @@ export interface IssueRelationshipAddRequest {
 }
 
 export class IssueService {
-  protected readonly baseUrl: string;
   protected readonly issueId: number;
 
-  constructor(baseUrl: string, issueId: number) {
-    this.baseUrl = baseUrl;
+  constructor(issueId: number) {
     this.issueId = issueId;
   }
 
@@ -36,7 +34,7 @@ export class IssueService {
   }
 
   public async RelationshipAdd(request: IssueRelationshipAddRequest) {
-    const url: string = `${this.baseUrl}/api/rest/issues/${this.issueId}/relationships`;
+    const url: string = `api/rest/issues/${this.issueId}/relationships`;
 
     let response: AxiosResponse<any>;
     try {
@@ -54,7 +52,7 @@ export class IssueService {
   }
 
   public async RelationshipDelete(relationshipId: number) {
-    const url: string = `${this.baseUrl}/api/rest/issues/${this.issueId}/relationships/${relationshipId}`;
+    const url: string = `api/rest/issues/${this.issueId}/relationships/${relationshipId}`;
 
     let response: AxiosResponse<any>;
     try {

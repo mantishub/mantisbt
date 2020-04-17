@@ -1,1 +1,2 @@
-export * from './IssueServices';
+export * from './ConfigService';
+export * from './IssueService';

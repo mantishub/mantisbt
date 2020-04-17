@@ -1,5 +1,5 @@
 import React from 'react';
-import { IssueService } from '../services';
+import { ConfigService, IssueService } from '../services';
 import { Relationship } from '../models';
 
 type Props = {
@@ -35,7 +35,7 @@ export class IssueRelationships extends React.Component<Props, States> {
       reqRelTyp: RelationshipTypeEnum.RELATED_TO,
       reqRelDestIds: ''
     };
-    this.Service = new IssueService('/mantisbt', props.issueId);
+    this.Service = new IssueService(props.issueId);
   }
 
   async handleRelationshipAdd() {
