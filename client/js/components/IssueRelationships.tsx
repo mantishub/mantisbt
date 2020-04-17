@@ -1,5 +1,5 @@
 import React from 'react';
-import { ConfigService, IssueService } from '../services';
+import { IssueService } from '../services';
 import { Relationship } from '../models';
 
 type Props = {

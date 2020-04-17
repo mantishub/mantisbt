@@ -89,11 +89,23 @@ $t_data = array(
 );
 
 $t_cmd = new IssueViewPageCommand( $t_data );
-$t_result = $t_cmd->execute();
+$t_view_command_result = $t_cmd->execute();
 
-$t_issue = $t_result['issue'];
-$t_issue_view = $t_result['issue_view'];
-$t_flags = $t_result['flags'];
+$t_issue = $t_view_command_result['issue'];
+$t_issue_view = $t_view_command_result['issue_view'];
+$t_flags = $t_view_command_result['flags'];
+
+# Get localized strings
+$t_strings = array( 'relation_graph', 'dependency_graph' );
+$t_data = array( 'query' => array( 'string' => $t_strings ) );
+$t_cmd = new LocalizedStringsGetCommand( $t_data );
+$t_strings_command_results = $t_cmd->execute();
+
+# Get config options
+$t_configs = array( 'relationship_graph_enable', 'relationship_graph_view_on_click' );
+$t_data = array( 'query' => array( 'option' => $t_configs ) );
+$t_cmd = new ConfigsGetCommand( $t_data );
+$t_configs_command_results = $t_cmd->execute();
 
 compress_enable();
 
@@ -113,7 +125,9 @@ $t_bottom_buttons_enabled = !$t_force_readonly && ( $t_action_button_position ==
 # Emit issue information to hidden div
 #
 
-echo '<div class="hidden" id="issue-data" data-issue=' . "'" . json_encode($t_result) . "'" . '></div>';
+echo '<div class="hidden" id="issue-data" data-issue=' . "'" . json_encode( $t_view_command_result ) . "'" . '></div>';
+echo '<div class="hidden" id="strings-data" data-strings=' . "'" . json_encode( $t_strings_command_results ) . "'" . '></div>';
+echo '<div class="hidden" id="configs-data" data-configs=' . "'" . json_encode( $t_configs_command_results ) . "'" . '></div>';
 
 #
 # Start of Template
