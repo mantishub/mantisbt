@@ -49,8 +49,8 @@ export class IssueService {
         throw new Error(e);
     }
 
-    const relationships =  IssueService.RelationshipsParse(response.data.issue.relationships);
-    return relationships;
+    //const relationships =  IssueService.RelationshipsParse(response.data.issue.relationships);
+    return response.data.issue.relationships;
   }
 
   public async RelationshipDelete(relationshipId: number) {
@@ -67,8 +67,8 @@ export class IssueService {
         throw new Error(e);
     }
   
-    const relationships =  IssueService.RelationshipsParse(response.data.issue.relationships);
-    return relationships;
+    //const relationships =  IssueService.RelationshipsParse(response.data.issue.relationships);
+    return response.data.issue.relationships || [];
   }
 
 }

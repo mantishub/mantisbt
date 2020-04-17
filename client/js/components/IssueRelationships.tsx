@@ -1,15 +1,16 @@
 import React from 'react';
 import { IssueService } from '../services';
+import { Relationship } from '../models';
 
 type Props = {
-  relationships: Array<any>;
+  relationships: Array<Relationship>;
   issueId: number;
   canUpdate: boolean;
   warning?: string;
 }
 
 type States = {
-  relationships: Array<any>,
+  relationships: Array<Relationship>,
   reqRelTyp: RelationshipTypeEnum,
   reqRelDestIds: string,
 }
@@ -69,6 +70,7 @@ export class IssueRelationships extends React.Component<Props, States> {
   render() {
     const { relationships, reqRelDestIds, reqRelTyp } = this.state;
     const { canUpdate, warning } = this.props;
+    console.log(canUpdate, warning);
     return relationships.length ? (
       <React.Fragment>
         <div className='widget-toolbox padding-8 clearfix'>
@@ -104,23 +106,23 @@ export class IssueRelationships extends React.Component<Props, States> {
           <div className='table-responsive'>
             <table className='table table-bordered table-condensed table-hover'>
               <tbody>
-                {relationships.map((relationship: any, key: number) => (
+                {relationships.map((relationship: Relationship, key: number) => (
                   <tr key={key}>
-                    <td><span className='nowrap'>{relationship['type']}</span></td>
-                    <td><a href={`view.php?id=${parseInt(relationship['issue_id'])}`}>{relationship['issue_id']}</a></td>
+                    <td><span className='nowrap'>{relationship.type.label}</span></td>
+                    <td><a href={`view.php?id=${relationship.issue.id}`}>{relationship.issue.id}</a></td>
                     <td>
-                      <i className={`fa fa-square fa-status-box ${relationship['issue_status_css']}`}></i>
+                      <i className={`fa fa-square fa-status-box`} style={{ color: relationship.issue.status?.color }}></i>
                       &nbsp;
-                      <span className='issue-status' title={relationship['issue_resolution'] || ''}>{relationship['issue_status_label']}</span>
+                      <span className='issue-status' title={relationship.issue.resolution?.name || ''}>{relationship.issue.status?.label}</span>
                     </td>
                     <td>
                       <span className='nowrap'>
-                        <a href={`view_user_page.php?id=${relationship['issue_handler_id']}`}>{relationship['issue_handler_name']}</a>
+                        <a href={`view_user_page.php?id=${relationship.issue.handler?.id}`}>{relationship.issue.handler?.name}</a>
                       </span>
                     </td>
                     <td>
-                      {relationship['issue_summary']}&nbsp;
-                      {relationship['is_removal'] && (
+                      {relationship.issue.summary}&nbsp;
+                      {(
                         <a
                           className='red noprint zoom-130'
                           onClick={() => this.handleRelationshipDelete(relationship['id'])}
