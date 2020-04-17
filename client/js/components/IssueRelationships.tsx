@@ -35,7 +35,7 @@ export class IssueRelationships extends React.Component<Props, States> {
       reqRelTyp: RelationshipTypeEnum.RELATED_TO,
       reqRelDestIds: ''
     };
-    this.Service = new IssueService('http://localhost:8888/mantisbt', props.issueId);
+    this.Service = new IssueService('/mantisbt', props.issueId);
   }
 
   async handleRelationshipAdd() {
@@ -70,7 +70,6 @@ export class IssueRelationships extends React.Component<Props, States> {
   render() {
     const { relationships, reqRelDestIds, reqRelTyp } = this.state;
     const { canUpdate, warning } = this.props;
-    console.log(canUpdate, warning);
     return relationships.length ? (
       <React.Fragment>
         <div className='widget-toolbox padding-8 clearfix'>
@@ -122,7 +121,7 @@ export class IssueRelationships extends React.Component<Props, States> {
                     </td>
                     <td>
                       {relationship.issue.summary}&nbsp;
-                      {(
+                      {canUpdate && (
                         <a
                           className='red noprint zoom-130'
                           onClick={() => this.handleRelationshipDelete(relationship['id'])}
