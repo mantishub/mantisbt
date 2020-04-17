@@ -902,74 +902,6 @@ function bug_view_relationship_get_details( $p_bug_id, BugRelationshipData $p_re
 	return $t_relationship_info_html;
 }
 
-
-/**
- * return formatted string with all the details on the requested relationship
- * @param integer             $p_bug_id       A bug identifier.
- * @param BugRelationshipData $p_relationship A bug relationship object.
- * @param boolean             $p_html_preview Whether to include style/hyperlinks - if preview is false, we prettify the output.
- * @param boolean             $p_show_project Show Project details.
- * @return string
- */
-function _bug_view_relationship_get_details( $p_bug_id, BugRelationshipData $p_relationship, $p_html_preview = false, $p_show_project = false ) {
-	if( $p_bug_id == $p_relationship->src_bug_id ) {
-		# root bug is in the source side, related bug in the destination side
-		$t_related_project_id = $p_relationship->dest_bug_id;
-		$t_related_project_name = project_get_name( $p_relationship->dest_project_id );
-		$t_related_bug_id = $p_relationship->dest_bug_id;
-		$t_relationship_descr = relationship_get_description_src_side( $p_relationship->type );
-	} else {
-		# root bug is in the dest side, related bug in the source side
-		$t_related_project_id = $p_relationship->src_bug_id;
-		$t_related_bug_id = $p_relationship->src_bug_id;
-		$t_related_project_name = project_get_name( $p_relationship->src_project_id );
-		$t_relationship_descr = relationship_get_description_dest_side( $p_relationship->type );
-	}
-
-	# related bug not existing...
-	if( !bug_exists( $t_related_bug_id ) ) {
-		return '';
-	}
-
-	# user can access to the related bug at least as a viewer
-	if( !access_has_bug_level( config_get( 'view_bug_threshold', null, null, $t_related_project_id ), $t_related_bug_id ) ) {
-		return '';
-	}
-
-	$t_relationship = new BugRelationshipViewData();
-
-	# get the information from the related bug and prepare the link
-	$t_bug = bug_get( $t_related_bug_id, false );
-	$t_status_string = get_enum_element( 'status', $t_bug->status, auth_get_current_user_id(), $t_bug->project_id );
-	$t_resolution_string = get_enum_element( 'resolution', $t_bug->resolution, auth_get_current_user_id(), $t_bug->project_id );
-
-	$t_relationship->id = $p_relationship->id;
-	$t_relationship->type = $t_relationship_descr;
-
-	# related issue information
-	if( $p_html_preview == false ) {
-		# choose color based on status
-		$t_status_css = html_get_status_css_fg( $t_bug->status, auth_get_current_user_id(), $t_bug->project_id );
-		$t_relationship->issue_id = bug_format_id( $t_related_bug_id );
-		$t_relationship->issue_status_label = $t_status_string;
-		$t_relationship->issue_status_css = $t_status_css;
-		$t_relationship->issue_resolution = string_attribute( $t_resolution_string );
-	} else {
-		$t_relationship->issue_id = bug_format_id( $t_related_bug_id );
-		$t_relationship->issue_status_label = $t_status_string;
-	}
-	$t_relationship->issue_summary = string_display_line_links( $t_bug->summary );
-
-	# related issue handler information
-	$t_relationship->issue_handler_id = $t_bug->handler_id;
-	$t_relationship->issue_handler_name = user_get_username( $t_bug->handler_id );
-
-	# if bug not read only and user has access level, user can remove relationship
-	$t_relationship->is_removal = !bug_is_readonly( $p_bug_id ) && !current_user_is_anonymous() && ( $p_html_preview == false ) && access_has_bug_level( config_get( 'update_bug_threshold' ), $p_bug_id );
-
-	return $t_relationship;
-}
-
 /**
  * print ALL the RELATIONSHIPS OF A SPECIFIC BUG
  * @param integer $p_bug_id A bug identifier.
@@ -999,30 +931,6 @@ function bug_view_relationship_get_summary_html( $p_bug_id ) {
 	}
 
 	return $t_summary;
-}
-
-/**
- * print ALL the RELATIONSHIPS OF A SPECIFIC BUG
- * @param integer $p_bug_id A bug identifier.
- * @return string
- */
-function bug_view_relationship_get_array( $p_bug_id ) {
-
-	# A variable that will be set by the following call to indicate if relationships belong
-	# to multiple projects.
-	$t_show_project = false;
-
-	$t_relationship_all = relationship_get_all( $p_bug_id, $t_show_project );
-	$t_relationship_all_count = count( $t_relationship_all );
-
-	$t_relationships = array();
-
-	# prepare the relationships table
-	for( $i = 0; $i < $t_relationship_all_count; $i++ ) {
-		array_push($t_relationships, _bug_view_relationship_get_details( $p_bug_id, $t_relationship_all[$i], /* html_preview */ false, $t_show_project ));
-	}
-
-	return $t_relationships;
 }
 
 /**
@@ -1119,22 +1027,7 @@ function bug_view_relationship_view_box( $p_bug_id, $p_can_update ) {
 			</div>
 		</div>
 	</div>
-	<?php
-		$t_relationships = bug_view_relationship_get_array($p_bug_id);
-		if( !empty($t_relationships) ) {
-			if( relationship_can_resolve_bug( $p_bug_id ) == false ) {
-				$t_warning = lang_get( 'relationship_warning_blocking_bugs_not_resolved' );
-			}
-		}
-	?>
-	<div
-		class="widget-body"
-		id="relationships-body"
-		data-bug_id='<?php echo $p_bug_id ?>'
-		data-relationships='<?php echo json_encode($t_relationships) ?>'
-		data-can_update=<?php echo $p_can_update?>
-		data-warning='<?php echo isset($t_warning) ? $t_warning : '' ?>'
-	></div>
+	<div class="widget-body" id="relationships-body"></div>
 	<script type="text/javascript" src="js/mantis.js"></script>
 	</div>
 	</div>

@@ -136,59 +136,6 @@ class BugRelationshipData {
 	public $type;
 }
 
-class BugRelationshipViewData {
-	/**
-	 * Relationship id
-	 */
-	public $id;
-
-	/**
-	 * Relationship type
-	 */
-	public $type;
-
-	/**
-	 * Related issue id
-	 */
-	public $issue_id;
-
-	/**
-	 * Related issue status string
-	 */
-	public $issue_status_label;
-
-	/**
-	 * Related issue status css
-	 */
-	public $issue_status_css;
-
-	/**
-	 * Related issue resolution
-	 */
-	public $issue_resolution;
-
-	/**
-	 * Related issue summary
-	 */
-	public $issue_summary;
-
-	/**
-	 * Related issue handler id
-	 */
-	public $issue_handler_id;
-
-	/**
-	 * Related issue handler name
-	 */
-	public $issue_handler_name;
-
-	/**
-	 * If relationship is removal
-	 */
-	public $is_removal;
-}
-
-
 $g_relationships = array();
 $g_relationships[BUG_DEPENDANT] = array(
 	'#forward' => true,
