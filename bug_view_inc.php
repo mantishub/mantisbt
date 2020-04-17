@@ -96,13 +96,26 @@ $t_issue_view = $t_view_command_result['issue_view'];
 $t_flags = $t_view_command_result['flags'];
 
 # Get localized strings
-$t_strings = array( 'relation_graph', 'dependency_graph' );
+$t_strings = array(
+	'relation_graph',
+	'dependency_graph',
+	'this_bug',
+	'add_new_relationship_button',
+	'related_to',
+	'duplicate_of',
+	'has_duplicate',
+	'dependant_on',
+	'blocks'
+);
 $t_data = array( 'query' => array( 'string' => $t_strings ) );
 $t_cmd = new LocalizedStringsGetCommand( $t_data );
 $t_strings_command_results = $t_cmd->execute();
 
 # Get config options
-$t_configs = array( 'relationship_graph_view_on_click' );
+$t_configs = array(
+	'relationship_graph_view_on_click',
+	'display_bug_padding',
+);
 $t_data = array( 'query' => array( 'option' => $t_configs ) );
 $t_cmd = new ConfigsGetCommand( $t_data );
 $t_configs_command_results = $t_cmd->execute();

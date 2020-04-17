@@ -7,6 +7,7 @@ type Props = {
   issueId: number;
   canUpdate: boolean;
   warning?: string;
+  localizedStrings: Array<any>;
 }
 
 type States = {
@@ -37,6 +38,13 @@ export class IssueRelationships extends React.Component<Props, States> {
     };
     this.Service = new IssueService(props.issueId);
   }
+
+  getLocalizedString(string: string) {
+    const index = this.props.localizedStrings.findIndex(x => x.name === string);
+    if (!index) return undefined;
+    return this.props.localizedStrings[index].localized;
+  }
+
 
   async handleRelationshipAdd() {
     try {
@@ -71,18 +79,18 @@ export class IssueRelationships extends React.Component<Props, States> {
       <React.Fragment>
         <div className='widget-toolbox padding-8 clearfix'>
           {canUpdate && <div className='form-inline noprint'>
-            <label className='inline'>Current issue&nbsp;&nbsp;</label>
+            <label className='inline'>{this.getLocalizedString('this_bug')}&nbsp;&nbsp;</label>
             <select
               className='input-sm'
               name='rel_type'
               onChange={(e) => this.setState({ reqRelTyp: parseInt(e.target.value) })}
               value={reqRelTyp}
             >
-              <option value={RelationshipTypeEnum.PARENT_OF}>parent of</option>
-              <option value={RelationshipTypeEnum.CHILD_OF}>child of</option>
-              <option value={RelationshipTypeEnum.DUPLICATE_OF}>duplicate of</option>
-              <option value={RelationshipTypeEnum.HAS_DUPLICATE}>has duplicate</option>
-              <option value={RelationshipTypeEnum.RELATED_TO}>related to</option>
+              <option value={RelationshipTypeEnum.PARENT_OF}>{this.getLocalizedString('dependant_on')}</option>
+              <option value={RelationshipTypeEnum.CHILD_OF}>{this.getLocalizedString('blocks')}</option>
+              <option value={RelationshipTypeEnum.DUPLICATE_OF}>{this.getLocalizedString('duplicate_of')}</option>
+              <option value={RelationshipTypeEnum.HAS_DUPLICATE}>{this.getLocalizedString('has_duplicate')}</option>
+              <option value={RelationshipTypeEnum.RELATED_TO}>{this.getLocalizedString('related_to')}</option>
             </select>
             &nbsp;
             <input
@@ -95,7 +103,9 @@ export class IssueRelationships extends React.Component<Props, States> {
             <button
               onClick={() => this.handleRelationshipAdd()}
               className='btn btn-primary btn-sm btn-white btn-round'
-            >Add</button>
+            >
+              {this.getLocalizedString('add_new_relationship_button')}
+            </button>
           </div>}
         </div>
         <div className='widget-main no-padding'>

@@ -3,8 +3,8 @@ import ReactDOM from 'react-dom';
 import { IssueRelationships } from './components/IssueRelationships';
 
 if (document.getElementById('issue-data')) {
-  const _compIssueData = document.getElementById('issue-data');
-  const issueData = JSON.parse(_compIssueData?.dataset.issue!);
+  const issueData = JSON.parse(document.getElementById('issue-data')?.dataset.issue!);
+  const stringsData = JSON.parse(document.getElementById('strings-data')?.dataset.strings!);
 
   if (issueData.issue && issueData.issue.relationships && document.getElementById('relationships-body')) {
     ReactDOM.render(
@@ -12,6 +12,7 @@ if (document.getElementById('issue-data')) {
         issueId={issueData.issue.id}
         canUpdate={issueData.flags['relationships_can_update']}
         relationships={issueData.issue.relationships}
+        localizedStrings={stringsData.strings}
       />,
       document.getElementById('relationships-body'));
   }
