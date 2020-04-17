@@ -9,13 +9,12 @@ if (document.getElementById('issue-data')) {
 
   if (issueData.issue && issueData.issue.relationships && document.getElementById('relationships-body')) {
     const relationshipButtonsData = JSON.parse(document.getElementById('relationship-buttons-data')?.dataset.relationshipButtons!);
+
     ReactDOM.render(
       <IssueRelationships
-        issueId={issueData.issue.id}
-        canUpdate={issueData.flags['relationships_can_update']}
-        relationships={issueData.issue.relationships}
-        localizedStrings={stringsData.strings}
         configs={configsData.configs}
+        issueData={issueData}
+        localizedStrings={stringsData.strings}
         relationshipButtons={relationshipButtonsData}
       />,
       document.getElementById('relationships-body'));

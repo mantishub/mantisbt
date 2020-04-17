@@ -105,7 +105,8 @@ $t_strings = array(
 	'duplicate_of',
 	'has_duplicate',
 	'dependant_on',
-	'blocks'
+	'blocks',
+	'relationship_warning_blocking_bugs_not_resolved'
 );
 $t_data = array( 'query' => array( 'string' => $t_strings ) );
 $t_cmd = new LocalizedStringsGetCommand( $t_data );
@@ -113,6 +114,8 @@ $t_strings_command_results = $t_cmd->execute();
 
 # Get config options
 $t_configs = array(
+	'bug_resolved_status_threshold',
+	'default_bug_dependant',
 	'relationship_graph_view_on_click',
 	'display_bug_padding',
 );
@@ -1001,15 +1004,11 @@ function relationship_buttons( $p_issue_id ) {
  * @return void
  */
 function bug_view_relationship_view_box( $p_bug_id, $p_can_update ) {
-	$t_relationships_html = bug_view_relationship_get_summary_html( $p_bug_id );
+	$t_relationship_all = relationship_get_all( $p_bug_id, $t_show_project );
 
-	if( !$p_can_update && empty( $t_relationships_html ) ) {
+	if( !$p_can_update && empty( $t_relationship_all ) ) {
 		return;
 	}
-
-	$t_relationship_graph = ON == config_get( 'relationship_graph_enable' );
-	$t_event_buttons = event_signal( 'EVENT_MENU_ISSUE_RELATIONSHIP', $p_bug_id );
-	$t_show_top_div = $p_can_update || $t_relationship_graph || !empty( $t_event_buttons );
 ?>
 	<div class="col-md-12 col-xs-12">
 	<div class="space-10"></div>
@@ -1028,64 +1027,6 @@ function bug_view_relationship_view_box( $p_bug_id, $p_can_update ) {
 			<a data-action="collapse" href="#">
 				<i class="1 ace-icon fa <?php echo $t_block_icon ?> bigger-125"></i>
 			</a>
-		</div>
-	</div>
-	<div class="widget-body">
-<?php
-	if( $t_show_top_div ) {
-?>
-		<div class="widget-toolbox padding-8 clearfix">
-<?php
-		# Default relationship buttons
-		$t_buttons = array();
-		if( $t_relationship_graph ) {
-			$t_buttons[lang_get( 'relation_graph' )] =
-				'bug_relationship_graph.php?bug_id=' . $p_bug_id . '&graph=relation';
-			$t_buttons[lang_get( 'dependency_graph' )] =
-				'bug_relationship_graph.php?bug_id=' . $p_bug_id . '&graph=dependency';
-		}
-
-		# Plugin-added buttons
-		foreach( $t_event_buttons as $t_plugin => $t_plugin_buttons ) {
-			foreach( $t_plugin_buttons as $t_callback => $t_callback_buttons ) {
-				if( is_array( $t_callback_buttons ) ) {
-					$t_buttons = array_merge( $t_buttons, $t_callback_buttons );
-				}
-			}
-		}
-?>
-		<div class="btn-group pull-right noprint">
-<?php
-		# Print the buttons, if any
-		foreach( $t_buttons as $t_label => $t_url ) {
-			print_small_button( $t_url, $t_label );
-		}
-?>
-		</div>
-
-<?php
-		if( $p_can_update ) {
-?>
-		<form method="post" action="bug_relationship_add.php" class="form-inline noprint">
-		<?php echo form_security_field( 'bug_relationship_add' ) ?>
-		<input type="hidden" name="src_bug_id" value="<?php echo $p_bug_id?>" />
-		<label class="inline"><?php echo lang_get( 'this_bug' ) ?>&#160;&#160;</label>
-		<?php print_relationship_list_box( config_get( 'default_bug_relationship' ) )?>
-		<input type="text" class="input-sm" name="dest_bug_id" value="" />
-		<input type="submit" class="btn btn-primary btn-sm btn-white btn-round" name="add_relationship" value="<?php echo lang_get( 'add_new_relationship_button' )?>" />
-		</form>
-<?php
-		} # can update
-?>
-		</div>
-<?php
-	} # show top div
-?>
-
-		<div class="widget-main no-padding">
-			<div class="table-responsive">
-				<?php echo $t_relationships_html; ?>
-			</div>
 		</div>
 	</div>
 	<div class="widget-body" id="relationships-body"></div>

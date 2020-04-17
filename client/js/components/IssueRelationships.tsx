@@ -4,29 +4,19 @@ import { Relationship } from '../models';
 
 type Props = {
   /**
-   *  The flag checking issue can be updated
-   */
-  canUpdate: boolean;
-
-  /**
    *  Config values array from div configs-data
    */
   configs: Array<any>;
 
   /**
-   *  Id of issue
+   *  Issue data
    */
-  issueId: number;
+  issueData: any;
 
   /**
    *  Localized strings array from div strings-data
    */
   localizedStrings: Array<any>;
-
-  /**
-   *  Relationships array from div issue-data
-   */
-  relationships: Array<Relationship>;
 
   /**
    *  Relationship buttons. Rel graph, Dependency graph, etc
@@ -49,6 +39,11 @@ type States = {
    *  Relationship dest ids entered in Add form
    */
   reqRelDestIds: string,
+
+  /**
+   *  Can resolve bug
+   */
+  canResolve: boolean,
 }
 
 enum RelationshipTypeEnum {
@@ -67,22 +62,40 @@ export class IssueRelationships extends React.Component<Props, States> {
     super(props);
 
     this.state = {
-      relationships: props.relationships,
+      relationships: props.issueData.issue.relationships,
       reqRelTyp: RelationshipTypeEnum.RELATED_TO,
-      reqRelDestIds: ''
+      reqRelDestIds: '',
+      canResolve: true,
     };
-    this.Service = new IssueService(props.issueId);
+    this.Service = new IssueService(props.issueData.issue.id);
+  }
+
+  componentDidUpdate() {
+    /*this.setState({
+      canResolve: this.canResolveBug()
+    });*/
+  }
+
+  canResolveBug() {
+    const { relationships } = this.state;
+
+    for (const relationship of relationships) {
+      if (relationship.type.id === this.getConfigValue('default_bug_dependant') &&
+          relationship.issue.status?.id! < this.getConfigValue('bug_resolved_status_threshold'))
+          return false;
+    }
+    return true;
   }
 
   getLocalizedString(text: string) {
     const index = this.props.localizedStrings.findIndex(x => x.name === text);
-    if (!index) return undefined;
+    if (index < 0) return undefined;
     return this.props.localizedStrings[index].localized;
   }
 
   getConfigValue(option: string) {
     const index = this.props.configs.findIndex(x => x.option === option);
-    if (!index) return undefined;
+    if (index < 0) return undefined;
     return this.props.configs[index].value;
   }
 
@@ -114,13 +127,16 @@ export class IssueRelationships extends React.Component<Props, States> {
 
   render() {
     const { relationships, reqRelDestIds, reqRelTyp } = this.state;
-    const { canUpdate, relationshipButtons } = this.props;
+    const canUpdate = this.props.issueData.flags['relationships_can_update'];
+    const relationshipButtons = Object.entries(this.props.relationshipButtons);
+
     return relationships.length ? (
       <React.Fragment>
+        {(canUpdate || relationshipButtons.length) &&
         <div className='widget-toolbox padding-8 clearfix'>
-          {Object.entries(relationshipButtons).length && (
+          {relationshipButtons.length && (
             <div className='btn-group pull-right noprint'>
-              {Object.entries(relationshipButtons).map(([key, value]) => (
+              {relationshipButtons.map(([key, value]) => (
                 <a className='btn btn-primary btn-white btn-round btn-sm' href={value}>{key}</a>
               ))}
             </div>
@@ -154,7 +170,7 @@ export class IssueRelationships extends React.Component<Props, States> {
               {this.getLocalizedString('add_new_relationship_button')}
             </button>
           </div>}
-        </div>
+        </div>}
         <div className='widget-main no-padding'>
           <div className='table-responsive'>
             <table className='table table-bordered table-condensed table-hover'>
@@ -192,6 +208,13 @@ export class IssueRelationships extends React.Component<Props, States> {
                     </td>
                   </tr>
                 ))}
+                {(relationships.length && !this.canResolveBug()) && (
+                  <tr>
+                    <td colSpan={5}>
+                      <strong>{this.getLocalizedString('relationship_warning_blocking_bugs_not_resolved')}</strong>
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
