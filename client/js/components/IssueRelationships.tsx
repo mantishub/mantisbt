@@ -40,11 +40,8 @@ export class IssueRelationships extends React.Component<Props, States> {
 
   async handleRelationshipAdd() {
     try {
-      this.state.reqRelDestIds.split('|').forEach(async (id) => {
-        const relationships = await this.Service.RelationshipAdd({
-          type: { id: this.state.reqRelTyp },
-          issue: { id: id },
-        });
+      this.state.reqRelDestIds.split('|').forEach(async (issueId) => {
+		const relationships = await this.Service.RelationshipAdd(this.state.reqRelTyp, parseInt(issueId));
         this.setState({ relationships });
       });
     } catch (error) {

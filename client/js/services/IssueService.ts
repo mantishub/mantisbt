@@ -1,10 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
 
-export interface IssueRelationshipAddRequest {
-  type: { id: number },
-  issue: { id: string },
-}
-
 export class IssueService {
   protected readonly issueId: number;
 
@@ -12,8 +7,13 @@ export class IssueService {
     this.issueId = issueId;
   }
 
-  public async RelationshipAdd(request: IssueRelationshipAddRequest) {
-    const url: string = `api/rest/issues/${this.issueId}/relationships`;
+  public async RelationshipAdd(relationshipType: number, issueId: number) {
+	const url: string = `api/rest/issues/${this.issueId}/relationships`;
+
+	const request = {
+		type: { id: relationshipType },
+		issue: { id: issueId },
+	};
 
     let response: AxiosResponse<any>;
     try {
