@@ -57,6 +57,10 @@ function rest_internal_autocomplete( \Slim\Http\Request $p_request, \Slim\Http\R
 			$t_unique_entries = profile_get_field_all_for_user( 'os_build' );
 			$t_matches = helper_filter_by_prefix( $t_unique_entries, $t_prefix );
 			break;
+		case 'related_issue_id':
+			$t_unique_entries = last_visited_get_array();
+			$t_matches = helper_filter_by_prefix( $t_unique_entries, $t_prefix );
+			break;
 		default:
 			return $p_response->withStatus( HTTP_STATUS_NOT_FOUND, "Field '$t_field' doesn't have auto-complete." );
 	}
