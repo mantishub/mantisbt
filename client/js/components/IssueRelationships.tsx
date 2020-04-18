@@ -62,7 +62,7 @@ export class IssueRelationships extends React.Component<Props, States> {
     super(props);
 
     this.state = {
-      relationships: props.issueData.issue.relationships,
+      relationships: props.issueData.issue.relationships || [],
       reqRelTyp: RelationshipTypeEnum.RELATED_TO,
       reqRelDestIds: '',
       canResolve: true,
@@ -130,98 +130,101 @@ export class IssueRelationships extends React.Component<Props, States> {
     const canUpdate = this.props.issueData.flags['relationships_can_update'];
     const relationshipButtons = Object.entries(this.props.relationshipButtons);
 
-    return relationships.length ? (
+    return (
       <React.Fragment>
-        {(canUpdate || relationshipButtons.length) &&
-        <div className='widget-toolbox padding-8 clearfix'>
-          {relationshipButtons.length ? (
-            <div className='btn-group pull-right noprint'>
-              {relationshipButtons.map(([key, value]) => (
-                <a className='btn btn-primary btn-white btn-round btn-sm' href={value}>{key}</a>
-              ))}
-            </div>
-          ) : null}
-          {canUpdate ? (
-            <div className='form-inline noprint'>
-              <label className='inline'>{this.getLocalizedString('this_bug')}&nbsp;&nbsp;</label>
-              <select
-                className='input-sm'
-                name='rel_type'
-                onChange={(e) => this.setState({ reqRelTyp: parseInt(e.target.value) })}
-                value={reqRelTyp}
-              >
-                <option value={RelationshipTypeEnum.PARENT_OF}>{this.getLocalizedString('dependant_on')}</option>
-                <option value={RelationshipTypeEnum.CHILD_OF}>{this.getLocalizedString('blocks')}</option>
-                <option value={RelationshipTypeEnum.DUPLICATE_OF}>{this.getLocalizedString('duplicate_of')}</option>
-                <option value={RelationshipTypeEnum.HAS_DUPLICATE}>{this.getLocalizedString('has_duplicate')}</option>
-                <option value={RelationshipTypeEnum.RELATED_TO}>{this.getLocalizedString('related_to')}</option>
-              </select>
-              &nbsp;
-              <input
-                type='text'
-                className='input-sm'
-                onChange={(e) => this.setState({ reqRelDestIds: e.target.value })}
-                value={reqRelDestIds}
-              />
-              &nbsp;
-              <button
-                onClick={() => this.handleRelationshipAdd()}
-                className='btn btn-primary btn-sm btn-white btn-round'
-              >
-                {this.getLocalizedString('add_new_relationship_button')}
-              </button>
-            </div>
-          ) : null}
-        </div>}
-        <div className='widget-main no-padding'>
-          <div className='table-responsive'>
-            <table className='table table-bordered table-condensed table-hover'>
-              <tbody>
-                {relationships.map((relationship: Relationship, key: number) => (
-                  <tr key={key}>
-                    <td>
-                      <span className='nowrap'>{relationship.type.label}</span>
-                    </td>
-                    <td>
-                      <a href={`view.php?id=${relationship.issue.id}`}>
-                        {'0'.repeat(Math.max(this.getConfigValue('display_bug_padding') - relationship.issue.id.toString().length, 0)) + relationship.issue.id}
-                      </a>
-                    </td>
-                    <td>
-                      <i className={`fa fa-square fa-status-box`} style={{ color: relationship.issue.status?.color }}></i>
-                      &nbsp;
-                      <span className='issue-status' title={relationship.issue.resolution?.name || ''}>{relationship.issue.status?.label}</span>
-                    </td>
-                    <td>
-                      <span className='nowrap'>
-                        <a href={`view_user_page.php?id=${relationship.issue.handler?.id}`}>{relationship.issue.handler?.name}</a>
-                      </span>
-                    </td>
-                    <td>
-                      {relationship.issue.summary}&nbsp;
-                      {canUpdate && (
-                        <a
-                          className='red noprint zoom-130'
-                          onClick={() => this.handleRelationshipDelete(relationship['id'])}
-                        >
-                          <i className='ace-icon fa fa-trash-o bigger-115'></i>
-                        </a>
-                      )}
-                    </td>
-                  </tr>
+        {(canUpdate || relationshipButtons.length) ? (
+          <div className='widget-toolbox padding-8 clearfix'>
+            {relationshipButtons.length ? (
+              <div className='btn-group pull-right noprint'>
+                {relationshipButtons.map(([key, value]) => (
+                  <a className='btn btn-primary btn-white btn-round btn-sm' href={value}>{key}</a>
                 ))}
-                {(relationships.length && !this.canResolveBug()) && (
-                  <tr>
-                    <td colSpan={5}>
-                      <strong>{this.getLocalizedString('relationship_warning_blocking_bugs_not_resolved')}</strong>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+              </div>
+            ) : null}
+            {canUpdate ? (
+              <div className='form-inline noprint'>
+                <label className='inline'>{this.getLocalizedString('this_bug')}&nbsp;&nbsp;</label>
+                <select
+                  className='input-sm'
+                  name='rel_type'
+                  onChange={(e) => this.setState({ reqRelTyp: parseInt(e.target.value) })}
+                  value={reqRelTyp}
+                >
+                  <option value={RelationshipTypeEnum.PARENT_OF}>{this.getLocalizedString('dependant_on')}</option>
+                  <option value={RelationshipTypeEnum.CHILD_OF}>{this.getLocalizedString('blocks')}</option>
+                  <option value={RelationshipTypeEnum.DUPLICATE_OF}>{this.getLocalizedString('duplicate_of')}</option>
+                  <option value={RelationshipTypeEnum.HAS_DUPLICATE}>{this.getLocalizedString('has_duplicate')}</option>
+                  <option value={RelationshipTypeEnum.RELATED_TO}>{this.getLocalizedString('related_to')}</option>
+                </select>
+                &nbsp;
+                <input
+                  type='text'
+                  className='input-sm'
+                  onChange={(e) => this.setState({ reqRelDestIds: e.target.value })}
+                  value={reqRelDestIds}
+                />
+                &nbsp;
+                <button
+                  onClick={() => this.handleRelationshipAdd()}
+                  className='btn btn-primary btn-sm btn-white btn-round'
+                >
+                  {this.getLocalizedString('add_new_relationship_button')}
+                </button>
+              </div>
+            ) : null}
           </div>
-        </div>
+        ) : null}
+        {relationships.length ? (
+          <div className='widget-main no-padding'>
+            <div className='table-responsive'>
+              <table className='table table-bordered table-condensed table-hover'>
+                <tbody>
+                  {relationships.map((relationship: Relationship, key: number) => (
+                    <tr key={key}>
+                      <td>
+                        <span className='nowrap'>{relationship.type.label}</span>
+                      </td>
+                      <td>
+                        <a href={`view.php?id=${relationship.issue.id}`}>
+                          {'0'.repeat(Math.max(this.getConfigValue('display_bug_padding') - relationship.issue.id.toString().length, 0)) + relationship.issue.id}
+                        </a>
+                      </td>
+                      <td>
+                        <i className={`fa fa-square fa-status-box`} style={{ color: relationship.issue.status?.color }}></i>
+                        &nbsp;
+                        <span className='issue-status' title={relationship.issue.resolution?.name || ''}>{relationship.issue.status?.label}</span>
+                      </td>
+                      <td>
+                        <span className='nowrap'>
+                          <a href={`view_user_page.php?id=${relationship.issue.handler?.id}`}>{relationship.issue.handler?.name}</a>
+                        </span>
+                      </td>
+                      <td>
+                        {relationship.issue.summary}&nbsp;
+                        {canUpdate && (
+                          <a
+                            className='red noprint zoom-130'
+                            onClick={() => this.handleRelationshipDelete(relationship['id'])}
+                          >
+                            <i className='ace-icon fa fa-trash-o bigger-115'></i>
+                          </a>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                  {(relationships.length && !this.canResolveBug()) && (
+                    <tr>
+                      <td colSpan={5}>
+                        <strong>{this.getLocalizedString('relationship_warning_blocking_bugs_not_resolved')}</strong>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ) : null}
       </React.Fragment>
-    ) : null
+    )
   }
 }

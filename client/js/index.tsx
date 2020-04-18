@@ -7,7 +7,7 @@ if (document.getElementById('issue-data')) {
   const stringsData = JSON.parse(document.getElementById('strings-data')?.dataset.strings!);
   const configsData = JSON.parse(document.getElementById('configs-data')?.dataset.configs!);
 
-  if (issueData.issue && issueData.issue.relationships && document.getElementById('relationships-body')) {
+  if (issueData.issue && document.getElementById('relationships-body')) {
     const relationshipButtonsData = JSON.parse(document.getElementById('relationship-buttons-data')?.dataset.relationshipButtons!);
 
     ReactDOM.render(
