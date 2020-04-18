@@ -1414,12 +1414,6 @@ $g_default_project_view_status = VS_PUBLIC;
 $g_default_bug_view_status = VS_PUBLIC;
 
 /**
- * Default Bug dependent
- * @global integer $g_default_bug_dependant
- */
-$g_default_bug_dependant = BUG_DEPENDANT;
-
-/**
  * Default value for bug description field used on bug report page.
  *
  * @global string $g_default_bug_description
@@ -4418,7 +4412,6 @@ $g_public_config_names = array(
 	'date_partitions',
 	'datetime_picker_format',
 	'default_bug_additional_info',
-	'default_bug_dependant',
 	'default_bug_description',
 	'default_bug_eta',
 	'default_bug_priority',

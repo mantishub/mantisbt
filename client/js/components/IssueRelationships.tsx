@@ -70,18 +70,13 @@ export class IssueRelationships extends React.Component<Props, States> {
     this.Service = new IssueService(props.issueData.issue.id);
   }
 
-  componentDidUpdate() {
-    /*this.setState({
-      canResolve: this.canResolveBug()
-    });*/
-  }
-
   canResolveBug() {
     const { relationships } = this.state;
+    const confResolvedStatusThreshold = this.getConfigValue('bug_resolved_status_threshold');
 
     for (const relationship of relationships) {
-      if (relationship.type.id === this.getConfigValue('default_bug_dependant') &&
-          relationship.issue.status?.id! < this.getConfigValue('bug_resolved_status_threshold'))
+      if (relationship.type.id === 2 &&
+          relationship.issue.status?.id! < confResolvedStatusThreshold)
           return false;
     }
     return true;

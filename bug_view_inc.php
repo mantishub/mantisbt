@@ -115,7 +115,6 @@ $t_strings_command_results = $t_cmd->execute();
 # Get config options
 $t_configs = array(
 	'bug_resolved_status_threshold',
-	'default_bug_dependant',
 	'relationship_graph_view_on_click',
 	'display_bug_padding',
 );
