@@ -143,10 +143,10 @@ $t_relationship_buttons = relationship_buttons( $f_issue_id );
 # Emit issue information to hidden div
 #
 
-echo '<div class="hidden" id="issue-data" data-issue=' . "'" . json_encode( $t_view_command_result ) . "'" . '></div>';
-echo '<div class="hidden" id="strings-data" data-strings=' . "'" . json_encode( $t_strings_command_results ) . "'" . '></div>';
-echo '<div class="hidden" id="configs-data" data-configs=' . "'" . json_encode( $t_configs_command_results ) . "'" . '></div>';
-echo '<div class="hidden" id="relationship-buttons-data" data-relationship-buttons=' . "'" . json_encode( $t_relationship_buttons ) . "'" . '></div>';
+echo '<div class="hidden" id="issue-data" data-issue="' . string_attribute( json_encode( $t_view_command_result ) ). '"></div>';
+echo '<div class="hidden" id="strings-data" data-strings="' . string_attribute( json_encode( $t_strings_command_results ) ) . '"></div>';
+echo '<div class="hidden" id="configs-data" data-configs="' . string_attribute( json_encode( $t_configs_command_results ) ) . '"></div>';
+echo '<div class="hidden" id="relationship-buttons-data" data-relationship-buttons="' . string_attribute( json_encode( $t_relationship_buttons ) ) . '"></div>';
 
 #
 # Start of Template
