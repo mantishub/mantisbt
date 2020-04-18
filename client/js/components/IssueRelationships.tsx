@@ -199,7 +199,10 @@ export class IssueRelationships extends React.Component<Props, States> {
                         {canUpdate && (
                           <a
                             className='red noprint zoom-130'
-                            onClick={() => this.handleRelationshipDelete(relationship['id'])}
+                            onClick={() => {
+                              if (confirm(this.getLocalizedString('delete_relationship_sure_msg')))
+                                this.handleRelationshipDelete(relationship['id'])
+                            }}
                           >
                             <i className='ace-icon fa fa-trash-o bigger-115'></i>
                           </a>
