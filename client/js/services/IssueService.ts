@@ -8,7 +8,8 @@ export class IssueService {
   }
 
   public async RelationshipAdd(relationshipType: number, issueId: number) {
-	const url: string = `api/rest/issues/${this.issueId}/relationships`;
+	const addRelationshipUrl: string = `api/rest/issues/${this.issueId}/relationships`;
+	const issueViewPageUrl: string = `api/rest/pages/issues/${this.issueId}/view`;
 
 	const request = {
 		type: { id: relationshipType },
@@ -17,7 +18,8 @@ export class IssueService {
 
     let response: AxiosResponse<any>;
     try {
-      response = await axios.post<any>(url, request);
+	  response = await axios.post<any>(addRelationshipUrl, request);
+	  response = await axios.get<any>(issueViewPageUrl);
     }
     catch (e) {
       if (e.response && e.response.data)
@@ -26,15 +28,17 @@ export class IssueService {
         throw new Error(e);
     }
 
-    return response.data.issue.relationships;
+    return response.data;
   }
 
   public async RelationshipDelete(relationshipId: number) {
-    const url: string = `api/rest/issues/${this.issueId}/relationships/${relationshipId}`;
+    const deleteRelationshipUrl: string = `api/rest/issues/${this.issueId}/relationships/${relationshipId}`;
+	const issueViewPageUrl: string = `api/rest/pages/issues/${this.issueId}/view`;
 
     let response: AxiosResponse<any>;
     try {
-      response = await axios.delete<any>(url);
+      response = await axios.delete<any>(deleteRelationshipUrl);
+	  response = await axios.get<any>(issueViewPageUrl);
     }
     catch (e) {
       if (e.response && e.response.data)
@@ -43,7 +47,7 @@ export class IssueService {
         throw new Error(e);
     }
   
-    return response.data.issue.relationships || [];
+    return response.data || [];
   }
 
 }

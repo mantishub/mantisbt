@@ -22,6 +22,11 @@ type Props = {
    *  Relationship buttons. Rel graph, Dependency graph, etc
    */
   relationshipButtons: Array<any>;
+
+  /**
+   *  Warning message
+   */
+  warning: string,
 }
 
 type States = {
@@ -41,9 +46,9 @@ type States = {
   reqRelDestIds: string,
 
   /**
-   *  Can resolve bug
+   *  Warning message
    */
-  canResolve: boolean,
+  warning: string,
 }
 
 enum RelationshipTypeEnum {
@@ -64,22 +69,11 @@ export class IssueRelationships extends React.Component<Props, States> {
     this.state = {
       relationships: props.issueData.issue.relationships || [],
       reqRelTyp: RelationshipTypeEnum.RELATED_TO,
-      reqRelDestIds: '',
-      canResolve: true,
+	  reqRelDestIds: '',
+	  warning: props.warning
     };
-    this.Service = new IssueService(props.issueData.issue.id);
-  }
 
-  canResolveBug() {
-    const { relationships } = this.state;
-    const confResolvedStatusThreshold = this.getConfigValue('bug_resolved_status_threshold');
-
-    for (const relationship of relationships) {
-      if (relationship.type.id === 2 &&
-          relationship.issue.status?.id! < confResolvedStatusThreshold)
-          return false;
-    }
-    return true;
+	this.Service = new IssueService(props.issueData.issue.id);
   }
 
   getLocalizedString(text: string) {
@@ -97,8 +91,11 @@ export class IssueRelationships extends React.Component<Props, States> {
   async handleRelationshipAdd() {
     try {
       this.state.reqRelDestIds.split('|').forEach(async (issueId) => {
-		const relationships = await this.Service.RelationshipAdd(this.state.reqRelTyp, parseInt(issueId));
-        this.setState({ relationships });
+		const response = await this.Service.RelationshipAdd(this.state.reqRelTyp, parseInt(issueId));
+		console.log(response);
+        this.setState({
+			relationships: response.issue.relationships,
+			warning: response.issue_view.relationships_warning });
       });
     } catch (error) {
       
@@ -112,9 +109,12 @@ export class IssueRelationships extends React.Component<Props, States> {
 
   async handleRelationshipDelete(relId: number) {
     try {
-      const relationships = await this.Service.RelationshipDelete(relId);
-      this.setState({ relationships });
-    } catch (error) {
+      const response = await this.Service.RelationshipDelete(relId);
+	  console.log(response);
+	  this.setState({
+		relationships: response.issue.relationships,
+		warning: response.issue_view.relationships_warning });
+	} catch (error) {
 
     }
     this.forceUpdate();
@@ -212,10 +212,10 @@ export class IssueRelationships extends React.Component<Props, States> {
                       </td>
                     </tr>
                   ))}
-                  {(relationships.length && !this.canResolveBug()) && (
+                  {(relationships.length && this.state.warning != '') && (
                     <tr>
                       <td colSpan={5}>
-                        <strong>{this.getLocalizedString('relationship_warning_blocking_bugs_not_resolved')}</strong>
+                        <strong>{this.state.warning}</strong>
                       </td>
                     </tr>
                   )}

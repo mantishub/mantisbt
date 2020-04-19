@@ -106,9 +106,9 @@ $t_strings = array(
 	'has_duplicate',
 	'dependant_on',
 	'blocks',
-	'relationship_warning_blocking_bugs_not_resolved',
 	'delete_relationship_sure_msg'
 );
+
 $t_data = array( 'query' => array( 'string' => $t_strings ) );
 $t_cmd = new LocalizedStringsGetCommand( $t_data );
 $t_strings_command_results = $t_cmd->execute();
