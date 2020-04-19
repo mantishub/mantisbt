@@ -1,4 +1,4 @@
-import { Issue } from './issue';
+import { Issue } from './Issue';
 
 export interface RelationshipType {
   id: number;

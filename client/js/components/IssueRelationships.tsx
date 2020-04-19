@@ -153,10 +153,11 @@ export class IssueRelationships extends React.Component<Props, States> {
                 </select>
                 &nbsp;
                 <input
-				  type='text'
-				  id='related_issue_id'
+                  type='text'
+                  id='related_issue_id'
                   className='typeahead input-sm'
                   onChange={(e) => this.setState({ reqRelDestIds: e.target.value })}
+                  onKeyDown={(e) => e.key === 'Enter' && this.handleRelationshipAdd()}
                   value={reqRelDestIds}
                 />
                 &nbsp;
