@@ -197,7 +197,7 @@ class IssueViewPageCommand extends Command {
 			!bug_is_readonly( $t_issue_id ) &&
 			access_has_bug_level( config_get( 'update_bug_threshold' ), $t_issue_id );
 
-		$t_block_resolving = $this->block_resolving( $t_issue_data );
+		$t_block_resolving = $this->block_resolving( $t_issue );
 		$t_issue_view['relationships_warning'] =
 			$t_block_resolving ? lang_get( 'relationship_warning_blocking_bugs_not_resolved' ) : '';
 
@@ -300,17 +300,16 @@ class IssueViewPageCommand extends Command {
 	 * @returns true if it can be resolved/closed, false otherwise.
 	 */
 	private function block_resolving( $p_issue ) {
-		if( !isset( $p_issue->relationships ) || empty( $p_issue->relationships ) ) {
+		if( !isset( $p_issue['relationships'] ) || empty( $p_issue['relationships'] ) ) {
 			return false;
 		}
 
 		$t_project_resolved_status = array();
 
-		$t_project_ids = array();
-		foreach( $p_issue->relationships as $t_relationship ) {
+		foreach( $p_issue['relationships'] as $t_relationship ) {
 			# Only issues that the current issue is dependant on can block it from being resolved/closed.
-			if( $t_relationship->type->id == BUG_DEPENDANT ) {
-				$t_related_issue_id = $t_relationship->issue->id;
+			if( $t_relationship['type']['id'] == BUG_DEPENDANT ) {
+				$t_related_issue_id = $t_relationship['issue']['id'];
 				$t_related_project_id = bug_get_field( $t_related_issue_id, 'project_id' );
 
 				if( !isset( $t_project_resolved_status[$t_related_project_id] ) ) {
@@ -318,7 +317,7 @@ class IssueViewPageCommand extends Command {
 						config_get( 'bug_resolved_status_threshold', null, null, $t_related_project_id );
 				}
 
-				if( $t_relationship->issue->status->id < $t_project_resolved_status[$t_related_project_id] ) {
+				if( $t_relationship['issue']['status']['id'] < $t_project_resolved_status[$t_related_project_id] ) {
 					return true;
 				}
 			}
