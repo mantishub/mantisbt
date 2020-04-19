@@ -50,4 +50,20 @@ export class IssueService {
     return response.data || [];
   }
 
+  public async GetIssueBasic(issueId: number) {
+    const issueBasicUrl: string = `api/rest/internal/issues/${issueId}/basic`;
+
+    let response: AxiosResponse<any>;
+    try {
+	  response = await axios.get<any>(issueBasicUrl);
+    }
+    catch (e) {
+      if (e.response && e.response.data)
+        throw new Error(e.response.data.message);
+      else
+        throw new Error(e);
+    }
+  
+    return response.data || [];
+  }
 }
