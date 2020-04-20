@@ -15,7 +15,8 @@ if (document.getElementById('issue-data')) {
         configs={configsData.configs}
         issueData={issueData}
         localizedStrings={stringsData.strings}
-        relationshipButtons={relationshipButtonsData}
+		relationshipButtons={relationshipButtonsData}
+		warning={issueData.issue_view.relationships_warning}
       />,
       document.getElementById('relationships-body'));
   }

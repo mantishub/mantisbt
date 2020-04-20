@@ -104,7 +104,6 @@ function rest_internal_config_display( \Slim\Http\Request $p_request, \Slim\Http
 
 function rest_internal_issue_basic( \Slim\Http\Request $p_request, \Slim\Http\Response $p_response, array $p_args ) {
 	$t_issue_id = $p_args['id'];
-	$t_title = '';
 
 	$t_issue = array();
 	$t_lang = lang_get_current();

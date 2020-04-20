@@ -8,7 +8,8 @@ export class IssueService {
   }
 
   public async RelationshipAdd(relationshipType: number, issueId: number) {
-	const url: string = `api/rest/issues/${this.issueId}/relationships`;
+	const addRelationshipUrl: string = `api/rest/issues/${this.issueId}/relationships`;
+	const issueViewPageUrl: string = `api/rest/pages/issues/${this.issueId}/view`;
 
 	const request = {
 		type: { id: relationshipType },
@@ -17,27 +18,46 @@ export class IssueService {
 
     let response: AxiosResponse<any>;
     try {
-      response = await axios.post<any>(url, request);
+	  response = await axios.post<any>(addRelationshipUrl, request);
+	  response = await axios.get<any>(issueViewPageUrl);
     }
     catch (e) {
       throw e;
     }
 
-    return response.data.issue.relationships;
+    return response.data;
   }
 
   public async RelationshipDelete(relationshipId: number) {
-    const url: string = `api/rest/issues/${this.issueId}/relationships/${relationshipId}`;
+    const deleteRelationshipUrl: string = `api/rest/issues/${this.issueId}/relationships/${relationshipId}`;
+	const issueViewPageUrl: string = `api/rest/pages/issues/${this.issueId}/view`;
 
     let response: AxiosResponse<any>;
     try {
-      response = await axios.delete<any>(url);
+      response = await axios.delete<any>(deleteRelationshipUrl);
+	  response = await axios.get<any>(issueViewPageUrl);
     }
     catch (e) {
       throw e;
     }
   
-    return response.data.issue.relationships || [];
+    return response.data || [];
   }
 
+  public async GetIssueBasic(issueId: number) {
+    const issueBasicUrl: string = `api/rest/internal/issues/${issueId}/basic`;
+
+    let response: AxiosResponse<any>;
+    try {
+	  response = await axios.get<any>(issueBasicUrl);
+    }
+    catch (e) {
+      if (e.response && e.response.data)
+        throw new Error(e.response.data.message);
+      else
+        throw new Error(e);
+    }
+  
+    return response.data || [];
+  }
 }
