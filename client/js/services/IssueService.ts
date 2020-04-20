@@ -20,10 +20,7 @@ export class IssueService {
       response = await axios.post<any>(url, request);
     }
     catch (e) {
-      if (e.response && e.response.data)
-        throw new Error(e.response.data.message);
-      else
-        throw new Error(e);
+      throw e;
     }
 
     return response.data.issue.relationships;
@@ -37,10 +34,7 @@ export class IssueService {
       response = await axios.delete<any>(url);
     }
     catch (e) {
-      if (e.response && e.response.data)
-        throw new Error(e.response.data.message);
-      else
-        throw new Error(e);
+      throw e;
     }
   
     return response.data.issue.relationships || [];

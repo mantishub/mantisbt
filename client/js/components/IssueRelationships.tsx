@@ -1,6 +1,8 @@
 import React from 'react';
 import { IssueService } from '../services';
 import { Relationship } from '../models';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 type Props = {
   /**
@@ -54,6 +56,10 @@ enum RelationshipTypeEnum {
   HAS_DUPLICATE = 4,
 }
 
+toast.configure({
+  hideProgressBar: true
+});
+
 export class IssueRelationships extends React.Component<Props, States> {
 
   protected readonly Service: IssueService;
@@ -97,11 +103,19 @@ export class IssueRelationships extends React.Component<Props, States> {
   async handleRelationshipAdd() {
     try {
       this.state.reqRelDestIds.split('|').forEach(async (issueId) => {
-		const relationships = await this.Service.RelationshipAdd(this.state.reqRelTyp, parseInt(issueId));
-        this.setState({ relationships });
+        try {
+          const relationships = await this.Service.RelationshipAdd(this.state.reqRelTyp, parseInt(issueId));
+          this.setState({ relationships });
+          toast.success('Success!');
+        } catch (e) {
+          if (e.response && e.response.data)
+            toast.error(e.response.data.message);
+          else
+            throw e;
+        }
       });
     } catch (error) {
-      
+      throw error;
     }
     this.setState({
       reqRelDestIds: '',
@@ -114,8 +128,12 @@ export class IssueRelationships extends React.Component<Props, States> {
     try {
       const relationships = await this.Service.RelationshipDelete(relId);
       this.setState({ relationships });
-    } catch (error) {
-
+      toast.success('Success!');
+    } catch (e) {
+      if (e.response && e.response.data)
+        toast.error(e.response.data.message);
+      else
+        throw e;
     }
     this.forceUpdate();
   }
