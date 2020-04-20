@@ -124,7 +124,6 @@ export class IssueRelationships extends React.Component<Props, States> {
   async handleRelationshipDelete(relId: number) {
     try {
       const response = await this.Service.RelationshipDelete(relId);
-      console.log(response);
       this.setState({
         relationships: response.issue.relationships,
         warning: response.issue_view.relationships_warning
