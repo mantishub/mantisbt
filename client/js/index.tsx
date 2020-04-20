@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { IssueRelationships } from './components/IssueRelationships';
+import { IssueRelationships } from './components';
 
 if (document.getElementById('issue-data')) {
   const issueData = JSON.parse(document.getElementById('issue-data')?.dataset.issue!);

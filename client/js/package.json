@@ -6,17 +6,17 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "clean": "rimraf ../../js/mantis.*",
-    "build": "webpack --config webpack.config.js",
-    "dev": "webpack --watch --watch-poll --config webpack.config.js",
+    "build": "webpack --config webpack.config.js --mode production",
+    "dev": "webpack --watch --config webpack.config.js --mode development",
     "minify": "minify ../../js/mantis.js"
   },
   "authors": [
     {
-        "name": "MantisBT Team",
-        "email": "mantisbt-dev@lists.sourceforge.net",
-        "homepage": "https://www.mantisbt.org"
+      "name": "MantisBT Team",
+      "email": "mantisbt-dev@lists.sourceforge.net",
+      "homepage": "https://www.mantisbt.org"
     }
-],
+  ],
   "license": "GPL-2.0-or-later",
   "dependencies": {
     "axios": "^0.19.2",
@@ -40,6 +40,7 @@
     "typescript": "^3.8.3",
     "uglifyjs-webpack-plugin": "^2.2.0",
     "webpack": "^4.42.1",
-    "webpack-cli": "^3.3.11"
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.10.3"
   }
 }

@@ -4,7 +4,6 @@ const path = require('path');
 
 module.exports = {
   entry: './index.tsx',
-  mode: 'production',
   output: {
     filename: 'mantis.js',
     path: path.resolve(__dirname, '../../js'),
@@ -25,6 +24,14 @@ module.exports = {
         'style-loader',
         'css-loader'
       ]
+    }, {
+      test: /\.tsx?$/,
+      use: [{
+        loader: 'ts-loader',
+        options: {
+          transpileOnly: true
+        }
+      }]
     }]
   },
   performance: {
