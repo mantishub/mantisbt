@@ -6,7 +6,7 @@ module.exports = {
   entry: './index.tsx',
   output: {
     filename: 'mantis.js',
-    path: path.resolve(__dirname, '../../js'),
+    path: path.resolve(__dirname, '../js'),
     publicPath: '/'
   },
   resolve: {

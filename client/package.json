@@ -5,10 +5,10 @@
   "main": "index.tsx",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "clean": "rimraf ../../js/mantis.*",
+    "clean": "rimraf ../js/mantis.*",
     "build": "webpack --config webpack.config.js --mode production",
     "dev": "webpack --watch --config webpack.config.js --mode development",
-    "minify": "minify ../../js/mantis.js"
+    "minify": "minify ../js/mantis.js"
   },
   "authors": [
     {
