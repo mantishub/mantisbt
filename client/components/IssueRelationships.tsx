@@ -1,6 +1,7 @@
 import React from 'react';
 import { IssueService } from '../services';
 import { Relationship } from '../models';
+import { DropdownTextInput } from '../components';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -51,6 +52,11 @@ type States = {
    *  Warning message
    */
   warning: string,
+
+  /**
+   *  Autocomplete options
+   */
+  options: Array<any>
 }
 
 enum RelationshipTypeEnum {
@@ -75,8 +81,9 @@ export class IssueRelationships extends React.Component<Props, States> {
     this.state = {
       relationships: props.issueData.issue.relationships || [],
       reqRelTyp: RelationshipTypeEnum.RELATED_TO,
-	  reqRelDestIds: '',
-	  warning: props.warning
+      reqRelDestIds: '',
+      warning: props.warning,
+      options: []
     };
 
 	this.Service = new IssueService(props.issueData.issue.id);
@@ -116,7 +123,8 @@ export class IssueRelationships extends React.Component<Props, States> {
     }
     this.setState({
       reqRelDestIds: '',
-      reqRelTyp: RelationshipTypeEnum.RELATED_TO
+      reqRelTyp: RelationshipTypeEnum.RELATED_TO,
+      options: []
     });
     this.forceUpdate();
   }
@@ -138,11 +146,23 @@ export class IssueRelationships extends React.Component<Props, States> {
     this.forceUpdate();
   }
 
+  async handleRelationshipInputValueChange(value: string) {
+    this.setState({ reqRelDestIds: value });
+    if (value) {
+      const data = await this.Service.RelationshipInputAutoComplete('related_issue_id', value);
+      this.setState({ options: data });
+    }
+    else {
+      this.setState({ options: [] });
+    }
+  }
+
   render() {
-    const { relationships, reqRelDestIds, reqRelTyp } = this.state;
+    const { relationships, reqRelDestIds, reqRelTyp, options } = this.state;
     const canUpdate = this.props.issueData.flags['relationships_can_update'];
     const relationshipButtons = Object.entries(this.props.relationshipButtons);
 
+    
     return (
       <React.Fragment>
         {(canUpdate || relationshipButtons.length) ? (
@@ -170,13 +190,19 @@ export class IssueRelationships extends React.Component<Props, States> {
                   <option value={RelationshipTypeEnum.RELATED_TO}>{this.getLocalizedString('related_to')}</option>
                 </select>
                 &nbsp;
-                <input
-                  type='text'
-                  id='related_issue_id'
-                  className='typeahead input-sm'
-                  onChange={(e) => this.setState({ reqRelDestIds: e.target.value })}
-                  onKeyDown={(e) => e.key === 'Enter' && this.handleRelationshipAdd()}
+                <DropdownTextInput
+                  onInputChange={(value) => this.handleRelationshipInputValueChange(value)}
+                  onEnterKeyDown={this.handleRelationshipAdd}
                   value={reqRelDestIds}
+                  options={options}
+                  renderItem={(item) => {
+                    return <>
+                        <b>{`${'0'.repeat(Math.max(this.getConfigValue('display_bug_padding') - item.id.toString().length, 0)) + item.id}: ${item.title}`}</b>
+                      </>
+                  }}
+                  onSelectItem={item => {
+                    this.setState({ reqRelDestIds: item.id });
+                  }}
                 />
                 &nbsp;
                 <button
