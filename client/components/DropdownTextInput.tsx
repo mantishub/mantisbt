@@ -43,12 +43,19 @@ export const DropdownTextInput = ({
   React.useEffect(() => {
     function handleArrowKeyDown(event: KeyboardEvent) {
       if (expanded) {
+        event.preventDefault();
         switch(event.key) {
           case 'ArrowDown':
-            index < (options.length - 1) && setIndex(index + 1), onSelectItem(options[index + 1]);
+            if (index < options.length - 1) {
+              setIndex(index + 1);
+              onSelectItem(options[index + 1]);
+            }
             break;
           case 'ArrowUp':
-            index > 0 && setIndex(index - 1), onSelectItem(options[index - 1]);
+            if (index > 0) {
+              setIndex(index - 1);
+              onSelectItem(options[index - 1]);
+            } 
             break;
           default:
             break;
