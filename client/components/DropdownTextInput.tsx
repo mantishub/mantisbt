@@ -21,6 +21,7 @@ export const DropdownTextInput = ({
   options,
 }: Props) => {
   const [expanded, setExpanded] = React.useState<boolean>(false);
+  const [index, setIndex] = React.useState<number>(-1);
   const DropdownRef = React.useRef<any>(null);
   React.useEffect(() => {
     setExpanded(!!options.length);
@@ -32,11 +33,34 @@ export const DropdownTextInput = ({
         setExpanded(false);
       }
     }
+    
     document.addEventListener('mousedown', handleClickOutSide);
     return () => {
       document.removeEventListener('mousedown', handleClickOutSide);
     }
-  })
+  }, [DropdownRef]);
+
+  React.useEffect(() => {
+    function handleArrowKeyDown(event: KeyboardEvent) {
+      if (expanded) {
+        switch(event.key) {
+          case 'ArrowDown':
+            index < (options.length - 1) && setIndex(index + 1), onSelectItem(options[index + 1]);
+            break;
+          case 'ArrowUp':
+            index > 0 && setIndex(index - 1), onSelectItem(options[index - 1]);
+            break;
+          default:
+            break;
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleArrowKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleArrowKeyDown);
+    }
+  }, [expanded, index]);
   
   return (
     <Container>
@@ -51,10 +75,10 @@ export const DropdownTextInput = ({
         value={value}
       />
       <Dropdown className='tt-menu' open={expanded} ref={DropdownRef}>
-        {options.map((option, index) => (
+        {options.map((option, _index) => (
           <div
-            key={index}
-            className="tt-suggestion tt-selectable"
+            key={_index}
+            className={`tt-suggestion tt-selectable${index === _index ? ' tt-cursor': ''}`}
             style={{ fontSize: 14 }}
             onClick={() => {
               setExpanded(false);

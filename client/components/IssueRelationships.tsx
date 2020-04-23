@@ -192,7 +192,7 @@ export class IssueRelationships extends React.Component<Props, States> {
                 &nbsp;
                 <DropdownTextInput
                   onInputChange={(value) => this.handleRelationshipInputValueChange(value)}
-                  onEnterKeyDown={this.handleRelationshipAdd}
+                  onEnterKeyDown={() => this.handleRelationshipAdd()}
                   value={reqRelDestIds}
                   options={options}
                   renderItem={(item) => {
