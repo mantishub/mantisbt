@@ -50,7 +50,8 @@ export class IssueService {
     let response: AxiosResponse<any>;
     try {
       response = await axios.post(autoCompleteUrl, { field, prefix });
-      const ids: Array<string> = response.data;
+      let ids: Array<string> = response.data;
+      ids = ids.filter(id => this.issueId !== parseInt(id));
       const data: Array<any> = await Promise.all(ids.map(async (id): Promise<any> => {
         const basicIssueResponse = await this.GetIssueBasic(parseInt(id));
         return {
