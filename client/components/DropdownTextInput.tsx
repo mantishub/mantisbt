@@ -28,7 +28,7 @@ export const DropdownTextInput = ({
   }, [options]);
 
   React.useEffect(() => {
-    function handleClickOutSide(event: any) {
+    function handleClickOutSide(event: MouseEvent) {
       if (DropdownRef.current && !DropdownRef.current!.contains(event.target)) {
         setExpanded(false);
       }
@@ -63,9 +63,15 @@ export const DropdownTextInput = ({
       }
     }
 
+    function handleMouseMoveOverDropdown(event: MouseEvent) {
+      expanded && (index > -1) && DropdownRef.current && DropdownRef.current!.contains(event.target) && setIndex(-1);
+    }
+
     document.addEventListener('keydown', handleArrowKeyDown);
+    document.addEventListener('mousemove', handleMouseMoveOverDropdown);
     return () => {
       document.removeEventListener('keydown', handleArrowKeyDown);
+      document.removeEventListener('mousemove', handleMouseMoveOverDropdown);
     }
   }, [expanded, index]);
   
