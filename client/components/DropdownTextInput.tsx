@@ -12,7 +12,7 @@ type Props = {
 }
 
 
-export const DropdownTextInput = ({
+const DropdownTextInput = ({
   renderItem,
   onSelectItem,
   onInputChange,
@@ -121,3 +121,5 @@ const Dropdown = styled.div<{ open: boolean }>`
   width: fit-content !important;
   display: ${props => props.open ? 'block' : 'none'}
 `;
+
+export default DropdownTextInput;

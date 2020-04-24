@@ -6,7 +6,7 @@ toast.configure({
   hideProgressBar: true
 });
 
-export class PluginStorybook extends React.Component {
+class PluginStorybook extends React.Component {
   state = {
     dummyText: '',  /* value of text input */
   }
@@ -42,3 +42,5 @@ export class PluginStorybook extends React.Component {
     );
   }
 }
+
+export default PluginStorybook;

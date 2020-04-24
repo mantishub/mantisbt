@@ -71,7 +71,7 @@ toast.configure({
   hideProgressBar: true
 });
 
-export class IssueRelationships extends React.Component<Props, States> {
+class IssueRelationships extends React.Component<Props, States> {
 
   protected readonly Service: IssueService;
 
@@ -272,3 +272,5 @@ export class IssueRelationships extends React.Component<Props, States> {
     )
   }
 }
+
+export default IssueRelationships;
