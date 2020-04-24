@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { IssueRelationships } from './components';
+import { IssueRelationships, PluginStorybook } from './components';
 
 if (document.getElementById('issue-data')) {
   const issueData = JSON.parse(document.getElementById('issue-data')?.dataset.issue!);
@@ -15,11 +15,16 @@ if (document.getElementById('issue-data')) {
         configs={configsData.configs}
         issueData={issueData}
         localizedStrings={stringsData.strings}
-		relationshipButtons={relationshipButtonsData}
-		warning={issueData.issue_view.relationships_warning}
+        relationshipButtons={relationshipButtonsData}
+        warning={issueData.issue_view.relationships_warning}
       />,
       document.getElementById('relationships-body'));
   }
 }
 
-
+if (document.getElementById('ReactSample')) {
+  ReactDOM.render(
+    <PluginStorybook />,
+    document.getElementById('ReactSample')
+  );
+}
