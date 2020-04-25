@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { IssueRelationships, PluginStorybook } from './components';
+import { IssueRelationships } from './components';
 
 if (document.getElementById('issue-data')) {
   const issueData = JSON.parse(document.getElementById('issue-data')?.dataset.issue!);
@@ -20,11 +20,4 @@ if (document.getElementById('issue-data')) {
       />,
       document.getElementById('relationships-body'));
   }
-}
-
-if (document.getElementById('ReactSample')) {
-  ReactDOM.render(
-    <PluginStorybook />,
-    document.getElementById('ReactSample')
-  );
 }
