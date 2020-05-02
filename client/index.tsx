@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { IssueRelationships } from './components';
+import { IssueRelationships, MentionInput } from './components';
 
 if (document.getElementById('issue-data')) {
   const issueData = JSON.parse(document.getElementById('issue-data')?.dataset.issue!);
@@ -20,4 +20,11 @@ if (document.getElementById('issue-data')) {
       />,
       document.getElementById('relationships-body'));
   }
+}
+
+if (document.getElementById('bugnote_text_div')) {
+  ReactDOM.render(
+    <MentionInput mentionList={[{username: 'walter'}, {username: 'victor'}]} />,
+    document.getElementById('bugnote_text_div')
+  );
 }

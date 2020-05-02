@@ -1,0 +1,151 @@
+import React from 'react';
+import styled from 'styled-components';
+
+const GetCoords = (textArea: any) => {
+  let replica = document.createElement("div");
+  const copyStyle = getComputedStyle(textArea as Element);
+  for (const prop of copyStyle) {
+    replica.style[(prop as any)] = copyStyle[(prop as any)];
+  }
+  replica.style.height = "auto";
+  replica.style.width = "auto";
+  let span = document.createElement("span");
+  replica.appendChild(span);
+
+  let content = textArea.value.substr(0, textArea.selectionStart);
+  let contentLines = content.split(/[\n\r]/g);
+  let currentline = content.substr(0, content.selectionStart).split(/[\n\r]/g).length;
+  let replicaContent = "";
+
+  contentLines.map((l: any, i: any) => {
+    if (i === currentline - 1 && i < contentLines.length) {
+      replicaContent += contentLines[i];
+      return;
+    }
+    replicaContent += "\n";
+  });
+  span.innerHTML = replicaContent.replace(/\n$/, "\n^A");
+  document.body.appendChild(replica);
+  const { offsetWidth: spanWidth, offsetHeight: spanHeight } = span;
+  document.body.removeChild(replica);
+
+  return {
+    x: (spanWidth > textArea.offsetWidth ? textArea.offsetWidth : spanWidth) + textArea.offsetLeft,
+    y: (spanHeight > textArea.offsetHeight ? textArea.offsetHeight: spanHeight) + textArea.offsetTop
+  };
+};
+
+interface Props {
+  symbol?: string;
+  field?: string;
+  mentionList: Array<any>;
+  fieldStyle?: string;
+  onChange?: (value: string) => void;
+  renderMentionItem?: (item: any) => React.ReactNode;
+}
+
+const MentionInput: React.FC<Props> = ({
+  symbol = '@',
+  field = 'username',
+  mentionList,
+  onChange,
+  renderMentionItem,
+  fieldStyle = 'form-control'
+}: Props) => {
+  const ParentRef = React.useRef<HTMLTextAreaElement>(null);
+  const [startAt, setStartAt] = React.useState<number>(-1);
+  const [position, setPosition] = React.useState<{ x: number, y: number }>({ x: -1, y: -1 });
+  const [list, setList] = React.useState<Array<any>>(mentionList);
+  const [mentionSize, setMentionSize] = React.useState<number>(0);
+
+  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    const start = e.target.selectionStart;
+    const character = value.substring(start - 1, start);
+
+    onChange && onChange(value);
+
+    if (character === symbol) {
+      setStartAt(start);
+      const coord = GetCoords(ParentRef.current);
+      setPosition(coord);
+      return;
+    }
+
+    if (character === " " || character === '\n' || character === '\r' || value.trim() === "") {
+      setStartAt(-1);
+      return;
+    }
+    //const coord = GetCoords(ParentRef.current);
+    setPosition(GetCoords(ParentRef.current));
+    //console.log(coord);
+
+    if (startAt > -1) {
+      setMentionSize(mentionSize + 1);
+    }
+  }
+
+  const handleMentionInsert = (value: string) => {
+    const textArea = ParentRef.current!;
+    const first = textArea.value.substr(0, startAt - symbol.length);
+    const last = textArea.value.substr(
+      startAt + mentionSize,
+      textArea.value.length
+    );
+    const content = `${first}${value}${last}`;
+    textArea.value = content;
+    setMentionSize(value.length);
+    textArea.focus();
+    if (onChange) onChange(textArea.value);
+    setStartAt(-1);
+    setMentionSize(0);
+  }
+
+  return (
+    <Container>
+      <Dropdown
+        className='tt-menu'
+        open={startAt > -1}
+        x={position.x}
+        y={position.y}
+      >
+          {list.map((mention, i) => {
+            return (
+              <div
+                key={i}
+                className='tt-suggestion tt-selectable'
+                onClick={() => handleMentionInsert(mention[field])}
+              >
+                {renderMentionItem ? (
+                  renderMentionItem(mention)
+                ) : (
+                  <div>{mention[field]}</div>
+                )}
+              </div>
+            )
+          })}
+      </Dropdown>
+      <textarea
+        className={fieldStyle}
+        rows={7}
+        ref={ParentRef}
+        onChange={handleTextChange}
+        />
+    </Container>
+  );
+};
+
+const Container = styled.div`
+  position: relative;
+`
+
+const Dropdown = styled.div<{open: boolean,x: number,y: number}>`
+  position: absolute;
+  top: ${props => props.y}px !important;
+  left: ${props => props.x}px !important;
+  right: auto !important;
+  margin-top: 7px !important;
+  display: ${props => props.open ? 'block' : 'none'};
+`
+
+export default MentionInput;
