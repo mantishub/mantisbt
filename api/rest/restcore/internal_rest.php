@@ -31,6 +31,7 @@ $g_app->group('/internal', function() use ( $g_app ) {
 	$g_app->any( '/autocomplete', 'rest_internal_autocomplete' );
 	$g_app->any( '/config_display', 'rest_internal_config_display' );
 	$g_app->get( '/issues/{id}/basic', 'rest_internal_issue_basic' );
+	$g_app->get( '/issues/{id}/mention_candidates', 'rest_internal_issue_mention_candidates' );
 });
 
 /**
@@ -114,6 +115,36 @@ function rest_internal_issue_basic( \Slim\Http\Request $p_request, \Slim\Http\Re
 	}
 
 	$t_result = array( 'issue' => $t_issue );
+
+	return $p_response->withStatus( HTTP_STATUS_SUCCESS )->withJson( $t_result );
+}
+
+function rest_internal_issue_mention_candidates( \Slim\Http\Request $p_request, \Slim\Http\Response $p_response, array $p_args ) {
+	$t_issue_id = $p_args['id'];
+
+	$t_users = array();
+
+	if ( !empty( $t_issue_id ) && bug_exists( $t_issue_id ) && access_has_bug_level( VIEWER, $t_issue_id ) ) {
+		$t_user_id = auth_get_current_user_id();
+		$t_issue_data = bug_get( $t_issue_id, true );
+		$t_lang = mci_get_user_lang( $t_user_id );
+		$t_issue = mci_issue_data_as_array( $t_issue_data, $t_user_id, $t_lang );
+
+		if ( $t_user_id != $t_issue['reporter']['id'] ) {
+			array_push($t_users, $t_issue['reporter']);
+		}
+		if ( isset( $t_issue['handler'] ) && $t_issue['handler']['id'] != $t_user_id ) {
+			array_push($t_users, $t_issue['handler']);
+		}
+		if ( isset( $t_issue['notes'] ) ) {
+			foreach ( $t_issue['notes'] as $t_note ) {
+				if ( !in_array( $t_note['reporter'], $t_users ) && $t_note['reporter']['id'] != $t_user_id )
+					array_push( $t_users, $t_note['reporter'] );
+			}
+		}
+	}
+
+	$t_result = array( 'users' => $t_users );
 
 	return $p_response->withStatus( HTTP_STATUS_SUCCESS )->withJson( $t_result );
 }
