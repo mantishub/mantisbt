@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { IssueRelationships, MentionInput } from './components';
+import { IssueService } from './services';
 
 if (document.getElementById('issue-data')) {
   const issueData = JSON.parse(document.getElementById('issue-data')?.dataset.issue!);
@@ -22,9 +23,23 @@ if (document.getElementById('issue-data')) {
   }
 }
 
-if (document.getElementById('bugnote_text_div')) {
-  ReactDOM.render(
-    <MentionInput mentionList={[{username: 'walter'}, {username: 'victor'}]} />,
-    document.getElementById('bugnote_text_div')
-  );
+if (document.getElementById('bugnote_text')) {
+  if (document.getElementById('issue-id')) {
+    const noteElement = document.getElementById('bugnote_text')!;
+    const issueId = JSON.parse(document.getElementById('issue-id')?.dataset.issue!);
+    const issueSerice: IssueService = new IssueService(issueId);
+    issueSerice.MentionUsersAutoComplete().then(data => {
+      ReactDOM.render(
+        <MentionInput
+          mentionList={data}
+          fieldId='bugnote_text'
+          fieldStyle={noteElement.getAttribute('class') || undefined}
+          fieldRows={noteElement.getAttribute('rows') ? parseInt(noteElement.getAttribute('rows')!) : undefined}
+          fieldCols={noteElement.getAttribute('cols') ? parseInt(noteElement.getAttribute('cols')!) : undefined}
+          fieldName={noteElement.getAttribute('name') || undefined}
+          value={noteElement.textContent || ''} />,
+        noteElement.parentElement!
+      );
+    });
+  }
 }

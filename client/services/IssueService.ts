@@ -3,7 +3,7 @@ import axios, { AxiosResponse } from 'axios';
 export class IssueService {
   protected readonly issueId: number;
 
-  constructor(issueId: number) {
+  constructor(issueId: number = 1) {
     this.issueId = issueId;
   }
 
@@ -81,5 +81,18 @@ export class IssueService {
     }
   
     return response.data || [];
+  }
+
+  public async MentionUsersAutoComplete() {
+    const autoCompleteUrl: string = `api/rest/internal/issues/${this.issueId}/mention_candidates`;
+
+    let response: AxiosResponse<any>;
+    try {
+      response = await axios.get<any>(autoCompleteUrl);
+      return response.data.users;
+    }
+    catch (e) {
+      throw e;
+    }
   }
 }

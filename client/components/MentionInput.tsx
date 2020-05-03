@@ -20,7 +20,7 @@ const GetCoords = (textArea: any) => {
   contentLines.map((l: any, i: any) => {
     if (i === currentline - 1 && i < contentLines.length) {
       replicaContent += contentLines[i];
-      return;
+      return l;
     }
     replicaContent += "\n";
   });
@@ -39,24 +39,40 @@ interface Props {
   symbol?: string;
   field?: string;
   mentionList: Array<any>;
+  fieldId: string;
   fieldStyle?: string;
+  fieldRows?: number;
+  fieldCols?: number;
+  fieldName?: string;
+  value: string;
   onChange?: (value: string) => void;
   renderMentionItem?: (item: any) => React.ReactNode;
 }
 
 const MentionInput: React.FC<Props> = ({
   symbol = '@',
-  field = 'username',
+  field = 'name',
   mentionList,
   onChange,
   renderMentionItem,
-  fieldStyle = 'form-control'
+  fieldStyle = 'form-control',
+  fieldId,
+  fieldRows = 7,
+  fieldCols = 80,
+  fieldName = '',
+  value,
 }: Props) => {
   const ParentRef = React.useRef<HTMLTextAreaElement>(null);
   const [startAt, setStartAt] = React.useState<number>(-1);
   const [position, setPosition] = React.useState<{ x: number, y: number }>({ x: -1, y: -1 });
-  const [list, setList] = React.useState<Array<any>>(mentionList);
+  const [list, updateMentionList] = React.useState<Array<any>>(mentionList);
   const [mentionSize, setMentionSize] = React.useState<number>(0);
+
+  React.useEffect(() => {
+    if (ParentRef) {
+      ParentRef.current!.value = value;
+    }
+  }, [ value, ParentRef ]);
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
@@ -76,18 +92,19 @@ const MentionInput: React.FC<Props> = ({
       setStartAt(-1);
       return;
     }
-    //const coord = GetCoords(ParentRef.current);
     setPosition(GetCoords(ParentRef.current));
-    //console.log(coord);
 
     if (startAt > -1) {
-      setMentionSize(mentionSize + 1);
+      setMentionSize(start - startAt);
+      const mention = value.substring(startAt, start);
+      const updatedList = list.filter( x => (x[field] as string).substring(0, start - startAt) === mention );
+      updateMentionList(updatedList);
     }
   }
 
   const handleMentionInsert = (value: string) => {
     const textArea = ParentRef.current!;
-    const first = textArea.value.substr(0, startAt - symbol.length);
+    const first = textArea.value.substr(0, startAt);
     const last = textArea.value.substr(
       startAt + mentionSize,
       textArea.value.length
@@ -105,7 +122,7 @@ const MentionInput: React.FC<Props> = ({
     <Container>
       <Dropdown
         className='tt-menu'
-        open={startAt > -1}
+        open={startAt > -1 && list.length > 0}
         x={position.x}
         y={position.y}
       >
@@ -126,8 +143,11 @@ const MentionInput: React.FC<Props> = ({
           })}
       </Dropdown>
       <textarea
+        id={fieldId}
+        name={fieldName}
         className={fieldStyle}
-        rows={7}
+        rows={fieldRows}
+        cols={fieldCols}
         ref={ParentRef}
         onChange={handleTextChange}
         />
