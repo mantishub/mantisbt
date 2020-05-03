@@ -1,4 +1,5 @@
 import { Relationship } from './Relationship';
+import { User } from './User';
 
 export interface Issue {
   id: number;
@@ -11,9 +12,9 @@ export interface Issue {
 
   category?: any;          /** Category **/
 
-  reporter?: IssueUser;
+  reporter: User;
 
-  handler?: IssueUser;
+  handler?: User;
 
   status?: IssueStatus;
 
@@ -36,6 +37,8 @@ export interface Issue {
   relationships?: Array<Relationship>;
   
   history?: Array<any>;
+
+  notes?: Array<any>;
 }
 
 export interface IssueStatus {
@@ -49,10 +52,4 @@ export interface IssueResolution {
   id: number;
   name: string;
   label: string;
-}
-
-export interface IssueUser {
-  id: number;
-  name: string;
-  email: string;
 }
