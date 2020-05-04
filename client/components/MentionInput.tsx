@@ -68,6 +68,7 @@ const MentionInput: React.FC<Props> = ({
   const [position, setPosition] = React.useState<{ x: number, y: number }>({ x: -1, y: -1 });
   const [list, updateMentionList] = React.useState<Array<any>>(mentionList);
   const [mentionSize, setMentionSize] = React.useState<number>(0);
+  const [index, setIndex] = React.useState<number>(-1);
 
   React.useEffect(() => {
     if (ParentRef) {
@@ -87,6 +88,41 @@ const MentionInput: React.FC<Props> = ({
       document.removeEventListener('mousedown', handleClickOutSide);
     }
   }, [DropdownRef]);
+  
+  React.useEffect(() => {
+    function handleArrowKeyDown(event: KeyboardEvent) {
+      if (startAt > -1 && list.length > 0) {
+        switch(event.key) {
+          case 'ArrowDown':
+            event.preventDefault();
+            if (index < list.length - 1) setIndex(index + 1);
+            break;
+          case 'ArrowUp':
+            event.preventDefault();
+            if (index > 0) setIndex(index - 1);
+            break;
+          case 'Enter':
+            handleMentionInsert(list[index][field]);
+            setIndex(-1);
+            event.preventDefault();
+            break;
+          default:
+            break;
+        }
+      }
+    }
+
+    function handleMouseMoveOverDropdown(event: MouseEvent) {
+      (startAt > -1) && (list.length > 0) && (index > -1) && DropdownRef.current && DropdownRef.current!.contains(event.target) && setIndex(-1);
+    }
+
+    document.addEventListener('keydown', handleArrowKeyDown);
+    document.addEventListener('mousemove', handleMouseMoveOverDropdown);
+    return () => {
+      document.removeEventListener('keydown', handleArrowKeyDown);
+      document.removeEventListener('mousemove', handleMouseMoveOverDropdown);
+    }
+  }, [startAt, list, index]);
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
@@ -145,7 +181,7 @@ const MentionInput: React.FC<Props> = ({
             return (
               <div
                 key={i}
-                className='tt-suggestion tt-selectable'
+                className={`tt-suggestion tt-selectable${index === i ? ' tt-cursor': ''}`}
                 onClick={() => handleMentionInsert(mention[field])}
               >
                 {renderMentionItem ? (
