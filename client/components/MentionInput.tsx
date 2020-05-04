@@ -97,7 +97,7 @@ const MentionInput: React.FC<Props> = ({
     if (startAt > -1) {
       setMentionSize(start - startAt);
       const mention = value.substring(startAt, start);
-      const updatedList = list.filter( x => (x[field] as string).substring(0, start - startAt) === mention );
+      const updatedList = mentionList.filter( x => (x[field] as string).substring(0, start - startAt) === mention );
       updateMentionList(updatedList);
     }
   }
