@@ -63,6 +63,7 @@ const MentionInput: React.FC<Props> = ({
   value,
 }: Props) => {
   const ParentRef = React.useRef<HTMLTextAreaElement>(null);
+  const DropdownRef = React.useRef<any>(null);
   const [startAt, setStartAt] = React.useState<number>(-1);
   const [position, setPosition] = React.useState<{ x: number, y: number }>({ x: -1, y: -1 });
   const [list, updateMentionList] = React.useState<Array<any>>(mentionList);
@@ -73,6 +74,19 @@ const MentionInput: React.FC<Props> = ({
       ParentRef.current!.value = value;
     }
   }, [ value, ParentRef ]);
+
+  React.useEffect(() => {
+    function handleClickOutSide(event: MouseEvent) {
+      if (DropdownRef.current && !DropdownRef.current!.contains(event.target)) {
+        updateMentionList([]);
+      }
+    }
+    
+    document.addEventListener('mousedown', handleClickOutSide);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutSide);
+    }
+  }, [DropdownRef]);
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
@@ -125,6 +139,7 @@ const MentionInput: React.FC<Props> = ({
         open={startAt > -1 && list.length > 0}
         x={position.x}
         y={position.y}
+        ref={DropdownRef}
       >
           {list.map((mention, i) => {
             return (
