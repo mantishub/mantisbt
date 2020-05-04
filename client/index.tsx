@@ -24,11 +24,20 @@ if (document.getElementById('issue-data')) {
 }
 
 if (document.getElementById('bugnote_text')) {
-  if (document.getElementById('issue-id')) {
-    const noteElement = document.getElementById('bugnote_text')!;
-    const issueId = JSON.parse(document.getElementById('issue-id')?.dataset.issue!);
-    const issueSerice: IssueService = new IssueService(issueId);
-    issueSerice.MentionUsersAutoComplete().then(data => {
+  const noteElement = document.getElementById('bugnote_text')!;
+  let issueId = 0;
+  if (document.getElementsByName('bug_id')) {
+    document.getElementsByName('bug_id').forEach(x => {
+      const idVal = x.getAttribute('value');
+      if (idVal) issueId = parseInt(idVal);
+    })
+  }
+  if (!issueId && document.getElementById('issue-id')) {
+    issueId = JSON.parse(document.getElementById('issue-id')?.dataset.issue!);
+  }
+
+  if (issueId > 0) {
+    (new IssueService(issueId)).MentionUsersAutoComplete().then(data => {
       ReactDOM.render(
         <MentionInput
           mentionList={data}
@@ -41,5 +50,18 @@ if (document.getElementById('bugnote_text')) {
         noteElement.parentElement!
       );
     });
+  }
+  else {
+    ReactDOM.render(
+      <MentionInput
+        mentionList={[]}
+        fieldId='bugnote_text'
+        fieldStyle={noteElement.getAttribute('class') || undefined}
+        fieldRows={noteElement.getAttribute('rows') ? parseInt(noteElement.getAttribute('rows')!) : undefined}
+        fieldCols={noteElement.getAttribute('cols') ? parseInt(noteElement.getAttribute('cols')!) : undefined}
+        fieldName={noteElement.getAttribute('name') || undefined}
+        value={noteElement.textContent || ''} />,
+      noteElement.parentElement!
+    );
   }
 }

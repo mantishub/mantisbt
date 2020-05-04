@@ -111,6 +111,8 @@ layout_page_header( bug_format_summary( $t_bug_id, SUMMARY_CAPTION ) );
 layout_page_begin();
 
 $t_bugnote_class = bugnote_get_field( $f_bugnote_id, 'view_state' ) == VS_PUBLIC ? '' : 'bugnote-private';
+
+echo '<div class="hidden" id="issue-id" data-issue="' . string_attribute( $t_bug_id ). '"></div>';
 ?>
 <div class="col-md-12 col-xs-12">
 
