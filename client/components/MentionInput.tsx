@@ -71,6 +71,7 @@ const MentionInput: React.FC<Props> = ({
   const [mentionSize, setMentionSize] = React.useState<number>(0);
   const [index, setIndex] = React.useState<number>(0);
   const [expanded, setExpanded] = React.useState<boolean>(false);
+  const [startAt, setStartAt] = React.useState<number>(-1);
 
   React.useEffect(() => {
     if (ParentRef) {
@@ -140,10 +141,11 @@ const MentionInput: React.FC<Props> = ({
          prevValue[startPos - 1] === ' ' ||
          prevValue[startPos - 1] === undefined)) startPos += symbol.length;
     
-    if (startPos > -1 && !expanded) {
+    if (startPos > -1 && startPos != startAt) {
       setExpanded(true);
       const coord = GetCoords(ParentRef.current, startPos);
       setPosition(coord);
+      setStartAt(startPos);
     }
 
     if (character === '\n' || character === '\r' || value.trim() === '') {
@@ -157,7 +159,7 @@ const MentionInput: React.FC<Props> = ({
       const updatedList = mentionList.filter( x => (x[field] as string).substring(0, start - startPos).toLowerCase() === mention );
       updateMentionList(updatedList);
 
-      !updatedList.length && setExpanded(false);
+      setExpanded(!!updatedList.length);
     }
   }
 
