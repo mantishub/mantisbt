@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const GetCoords = (textArea: any) => {
+const GetCoords = (textArea: any, index: number) => {
   let replica = document.createElement("div");
   const copyStyle = getComputedStyle(textArea as Element);
   for (const prop of copyStyle) {
@@ -12,7 +12,7 @@ const GetCoords = (textArea: any) => {
   let span = document.createElement("span");
   replica.appendChild(span);
 
-  let content = textArea.value.substr(0, textArea.selectionStart);
+  let content = textArea.value.substr(0, index);
   let contentLines = content.split(/[\n\r]/g);
   let currentline = content.substr(0, content.selectionStart).split(/[\n\r]/g).length;
   let replicaContent = "";
@@ -64,11 +64,11 @@ const MentionInput: React.FC<Props> = ({
 }: Props) => {
   const ParentRef = React.useRef<HTMLTextAreaElement>(null);
   const DropdownRef = React.useRef<any>(null);
-  const [startAt, setStartAt] = React.useState<number>(-1);
   const [position, setPosition] = React.useState<{ x: number, y: number }>({ x: -1, y: -1 });
   const [list, updateMentionList] = React.useState<Array<any>>(mentionList);
   const [mentionSize, setMentionSize] = React.useState<number>(0);
   const [index, setIndex] = React.useState<number>(0);
+  const [expanded, setExpanded] = React.useState<boolean>(false);
 
   React.useEffect(() => {
     if (ParentRef) {
@@ -91,7 +91,7 @@ const MentionInput: React.FC<Props> = ({
   
   React.useEffect(() => {
     function handleArrowKeyDown(event: KeyboardEvent) {
-      if (startAt > -1 && list.length > 0) {
+      if (expanded && list.length > 0) {
         switch(event.key) {
           case 'ArrowDown':
             event.preventDefault();
@@ -117,7 +117,7 @@ const MentionInput: React.FC<Props> = ({
     return () => {
       document.removeEventListener('keydown', handleArrowKeyDown);
     }
-  }, [startAt, list, index]);
+  }, [expanded, list, index]);
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
@@ -126,33 +126,42 @@ const MentionInput: React.FC<Props> = ({
 
     onChange && onChange(value);
 
-    if (character === symbol) {
-      setStartAt(start);
-      const coord = GetCoords(ParentRef.current);
+    const prevValue = value.substring(0, start);
+    let startPos = prevValue.lastIndexOf(`${symbol}`);
+    if (startPos > -1 && 
+        (prevValue[startPos - 1] === '' ||
+         prevValue[startPos - 1] === '\n' ||
+         prevValue[startPos - 1] === '\r' ||
+         prevValue[startPos - 1] === ' ' ||
+         prevValue[startPos - 1] === undefined)) startPos += symbol.length;
+    
+    if (startPos > -1 && !expanded) {
+      setExpanded(true);
+      const coord = GetCoords(ParentRef.current, startPos);
       setPosition(coord);
-      updateMentionList(mentionList);
+    }
+
+    if (character === '\n' || character === '\r' || value.trim() === '') {
+      setExpanded(false);
       return;
     }
 
-    if (character === '\n' || character === '\r' || value.trim() === "") {
-      setStartAt(-1);
-      return;
-    }
-    setPosition(GetCoords(ParentRef.current));
-
-    if (startAt > -1) {
-      setMentionSize(start - startAt);
-      const mention = value.substring(startAt, start);
-      const updatedList = mentionList.filter( x => (x[field] as string).substring(0, start - startAt) === mention );
+    if (startPos > -1) {
+      setMentionSize(start - startPos);
+      const mention = value.substring(startPos, start).toLowerCase();
+      const updatedList = mentionList.filter( x => (x[field] as string).substring(0, start - startPos).toLowerCase() === mention );
       updateMentionList(updatedList);
+
+      !updatedList.length && setExpanded(false);
     }
   }
 
   const handleMentionInsert = (value: string) => {
     const textArea = ParentRef.current!;
-    const first = textArea.value.substr(0, startAt);
+    const startPos = textArea.value.substring(0, textArea.selectionStart).lastIndexOf(`${symbol}`) + symbol.length;
+    const first = textArea.value.substr(0, startPos);
     const last = textArea.value.substr(
-      startAt + mentionSize,
+      startPos + mentionSize,
       textArea.value.length
     );
     const content = `${first}${value} ${last}`;
@@ -162,20 +171,21 @@ const MentionInput: React.FC<Props> = ({
     if (onChange) onChange(textArea.value);
     updateMentionList([]);
     setMentionSize(0);
+    setExpanded(false);
   }
 
   return (
     <Container>
       <Dropdown
         className='tt-menu'
-        open={startAt > -1 && list.length > 0}
+        open={expanded && list.length > 0}
         x={position.x}
         y={position.y}
         ref={DropdownRef}
       >
           {list.map((mention, i) => {
             return (
-              <div
+              <Item
                 key={i}
                 className={`tt-suggestion tt-selectable${index === i ? ' tt-cursor': ''}`}
                 onClick={() => handleMentionInsert(mention[field])}
@@ -185,7 +195,7 @@ const MentionInput: React.FC<Props> = ({
                 ) : (
                   <div>{mention[field]}</div>
                 )}
-              </div>
+              </Item>
             )
           })}
       </Dropdown>
@@ -211,8 +221,19 @@ const Dropdown = styled.div<{open: boolean,x: number,y: number}>`
   top: ${props => props.y}px !important;
   left: ${props => props.x}px !important;
   right: auto !important;
+  margin-left: 10px;
   margin-top: 7px !important;
+  padding: 0px !important;
+  border-radius: 5px;
+  overflow: hidden;
   display: ${props => props.open ? 'block' : 'none'};
+`
+
+const Item = styled.div`
+  border-bottom: 1px solid #e1e4e8;
+  &:last-child {
+    border-bottom: 0px !important;
+  }
 `
 
 export default MentionInput;
