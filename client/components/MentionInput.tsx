@@ -68,7 +68,7 @@ const MentionInput: React.FC<Props> = ({
   const [position, setPosition] = React.useState<{ x: number, y: number }>({ x: -1, y: -1 });
   const [list, updateMentionList] = React.useState<Array<any>>(mentionList);
   const [mentionSize, setMentionSize] = React.useState<number>(0);
-  const [index, setIndex] = React.useState<number>(-1);
+  const [index, setIndex] = React.useState<number>(0);
 
   React.useEffect(() => {
     if (ParentRef) {
@@ -102,8 +102,9 @@ const MentionInput: React.FC<Props> = ({
             if (index > 0) setIndex(index - 1);
             break;
           case 'Enter':
+          case 'Tab':
             handleMentionInsert(list[index][field]);
-            setIndex(-1);
+            setIndex(0);
             event.preventDefault();
             break;
           default:
@@ -112,15 +113,9 @@ const MentionInput: React.FC<Props> = ({
       }
     }
 
-    function handleMouseMoveOverDropdown(event: MouseEvent) {
-      (startAt > -1) && (list.length > 0) && (index > -1) && DropdownRef.current && DropdownRef.current!.contains(event.target) && setIndex(-1);
-    }
-
     document.addEventListener('keydown', handleArrowKeyDown);
-    document.addEventListener('mousemove', handleMouseMoveOverDropdown);
     return () => {
       document.removeEventListener('keydown', handleArrowKeyDown);
-      document.removeEventListener('mousemove', handleMouseMoveOverDropdown);
     }
   }, [startAt, list, index]);
 
@@ -135,10 +130,11 @@ const MentionInput: React.FC<Props> = ({
       setStartAt(start);
       const coord = GetCoords(ParentRef.current);
       setPosition(coord);
+      updateMentionList(mentionList);
       return;
     }
 
-    if (character === " " || character === '\n' || character === '\r' || value.trim() === "") {
+    if (character === '\n' || character === '\r' || value.trim() === "") {
       setStartAt(-1);
       return;
     }
@@ -159,12 +155,12 @@ const MentionInput: React.FC<Props> = ({
       startAt + mentionSize,
       textArea.value.length
     );
-    const content = `${first}${value}${last}`;
+    const content = `${first}${value} ${last}`;
     textArea.value = content;
     setMentionSize(value.length);
     textArea.focus();
     if (onChange) onChange(textArea.value);
-    setStartAt(-1);
+    updateMentionList([]);
     setMentionSize(0);
   }
 
