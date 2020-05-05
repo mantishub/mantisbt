@@ -38,6 +38,7 @@ const GetCoords = (textArea: any, index: number) => {
 interface Props {
   symbol?: string;
   field?: string;
+  secondaryField?: string;
   mentionList: Array<any>;
   fieldId: string;
   fieldStyle?: string;
@@ -52,6 +53,7 @@ interface Props {
 const MentionInput: React.FC<Props> = ({
   symbol = '@',
   field = 'name',
+  secondaryField,
   mentionList,
   onChange,
   renderMentionItem,
@@ -193,7 +195,10 @@ const MentionInput: React.FC<Props> = ({
                 {renderMentionItem ? (
                   renderMentionItem(mention)
                 ) : (
-                  <div>{mention[field]}</div>
+                  <React.Fragment>
+                    <span>{mention[field]}</span>
+                    {secondaryField ? <small>{mention[secondaryField]}</small> : null}
+                  </React.Fragment>
                 )}
               </Item>
             )
@@ -231,6 +236,17 @@ const Dropdown = styled.div<{open: boolean,x: number,y: number}>`
 
 const Item = styled.div`
   border-bottom: 1px solid #e1e4e8;
+  font-size: 14px;
+  & small {
+    color: #586069;
+    margin-left: 5px;
+  }
+  &.tt-cursor small {
+    color: white !important;
+  }
+  &:hover small {
+    color: white !important;
+  }
   &:last-child {
     border-bottom: 0px !important;
   }
