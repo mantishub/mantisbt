@@ -109,6 +109,9 @@ const MentionInput: React.FC<Props> = ({
             setIndex(0);
             event.preventDefault();
             break;
+          case 'Escape':
+            setExpanded(false);
+            break;
           default:
             break;
         }
