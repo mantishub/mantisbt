@@ -120,28 +120,61 @@ function rest_internal_issue_basic( \Slim\Http\Request $p_request, \Slim\Http\Re
 }
 
 function rest_internal_issue_mention_candidates( \Slim\Http\Request $p_request, \Slim\Http\Response $p_response, array $p_args ) {
-	$t_issue_id = $p_args['id'];
+	$t_issue_id = isset( $p_args['id'] ) ? (int)$p_args['id'] : '';
 
 	$t_users = array();
 
-	if ( !empty( $t_issue_id ) && bug_exists( $t_issue_id ) && access_has_bug_level( VIEWER, $t_issue_id ) ) {
-		$t_user_id = auth_get_current_user_id();
+	$t_user_id = auth_get_current_user_id();
+	if( !empty( $t_issue_id ) && bug_exists( $t_issue_id ) && access_has_bug_level( VIEWER, $t_issue_id, $t_user_id ) ) {
 		$t_issue_data = bug_get( $t_issue_id, true );
 		$t_lang = mci_get_user_lang( $t_user_id );
 		$t_issue = mci_issue_data_as_array( $t_issue_data, $t_user_id, $t_lang );
 
-		if ( $t_user_id != $t_issue['reporter']['id'] ) {
-			array_push($t_users, $t_issue['reporter']);
+		# reporter and handler
+		$t_users[$t_issue['reporter']['id']] = $t_issue['reporter'];
+		if( isset( $t_issue['handler'] ) ) {
+			$t_users[$t_issue['handler']['id']] = $t_issue['handler'];
 		}
-		if ( isset( $t_issue['handler'] ) && $t_issue['handler']['id'] != $t_user_id ) {
-			array_push($t_users, $t_issue['handler']);
-		}
-		if ( isset( $t_issue['notes'] ) ) {
-			foreach ( $t_issue['notes'] as $t_note ) {
-				if ( !in_array( $t_note['reporter'], $t_users ) && $t_note['reporter']['id'] != $t_user_id )
-					array_push( $t_users, $t_note['reporter'] );
+
+		# note authors
+		if( isset( $t_issue['notes'] ) ) {
+			foreach( $t_issue['notes'] as $t_note ) {
+				$t_users[$t_note['reporter']['id']] = $t_note['reporter'];
 			}
 		}
+
+		# users who monitor the issue
+		if( $t_issue['monitors'] ) {
+			foreach( $t_issue['monitors'] as $t_user ) {
+				$t_users[$t_user['id']] = $t_user;
+			}
+		}
+
+		# users who acted on the issue
+		if( $t_issue['history'] ) {
+			foreach ( $t_issue['history'] as $t_event ) {
+				$t_users[$t_event['user']['id']] = $t_event['user'];
+			}
+		}
+
+		# If current user can handle issues, then bring in peer group for this project.
+		$t_project_id = $t_issue_data->project_id;
+		$t_handle_bug_threshold = config_get( 'handle_bug_threshold', null, null, $t_project_id );
+
+		# If handle bug threshold is set to DEVELOPER and MANAGER as an array, then administrator won't see such users.
+		# Hence, adding a check for administrator explicitly.
+		if( current_user_is_administrator() ||
+		    access_has_bug_level( $t_handle_bug_threshold, $t_issue_id, $t_user_id ) ) {
+			$t_project_handlers_ids = project_user_list_with_access_level_temp( $t_project_id, $t_handle_bug_threshold );
+			foreach( $t_project_handlers_ids as $t_handler_id ) {
+				$t_users[$t_handler_id] = mci_account_get_array_by_id( $t_handler_id );
+			}
+		}
+
+		# remove current user
+		unset( $t_users[$t_user_id] );
+
+		$t_users = array_values( $t_users );
 	}
 
 	$t_result = array( 'users' => $t_users );
@@ -149,3 +182,45 @@ function rest_internal_issue_mention_candidates( \Slim\Http\Request $p_request, 
 	return $p_response->withStatus( HTTP_STATUS_SUCCESS )->withJson( $t_result );
 }
 
+/**
+ * Get list of users in specified project with access level specified or above.
+ *
+ * @todo from print_reporter_option_list
+ * @param integer       $p_project_id A project identifier.
+ * @param integer       $p_access     An access level.
+ * @return array of users with id, username, realname, access_level
+ * 
+ * TODO: copied from print_user_option_list() - needs to refactor MantisBT to separate business logic from view.
+ *       This version returns the users in a format that maps the REST API format, compared to original version
+ *       that used internal format.
+ */
+function project_user_list_with_access_level_temp( $p_project_id = null, $p_access = ANYBODY ) {
+	$t_current_user = auth_get_current_user_id();
+
+	if( null === $p_project_id ) {
+		$p_project_id = helper_get_current_project();
+	}
+
+	if( $p_project_id === ALL_PROJECTS ) {
+		$t_projects = user_get_accessible_projects( $t_current_user );
+	} else {
+		$t_projects = array( $p_project_id );
+	}
+
+	# Get list of users having access level for all accessible projects
+	$t_users = array();
+	foreach( $t_projects as $t_project_id ) {
+		$t_project_users_list = project_get_all_user_rows( $t_project_id, $p_access );
+
+		# Do a 'smart' merge of the project's user list, into an
+		# associative array (to remove duplicates)
+		foreach( $t_project_users_list as $t_id => $t_user ) {
+			$t_users[$t_id] = $t_id;
+		}
+
+		# Clear the array to release memory
+		unset( $t_project_users_list );
+	}
+
+	return $t_users;
+}
