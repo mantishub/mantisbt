@@ -143,6 +143,7 @@ const MentionInput: React.FC<Props> = ({
         expanded={expanded && list.length > 0}
         position={position}
         options={list}
+        ParentRef={ParentRef}
         renderItem={(item) => {
           return renderMentionItem ? (
             renderMentionItem(item)

@@ -9,6 +9,7 @@ interface Props {
   renderItem: (item: any) => React.ReactNode;
   onSelectItem: (item: any) => void;
   onHide: () => void;
+  ParentRef?: React.RefObject<any>;
 }
 
 const Dropdown: React.FC<Props> = ({
@@ -19,15 +20,19 @@ const Dropdown: React.FC<Props> = ({
   onSelectItem,
   onHide,
   maxLimit = 5,
+  ParentRef,
+  ...rest
 }: Props) => {
   const [index, setIndex] = React.useState<number>(0);
   const [hiddenCnt, setHiddenCount] = React.useState<number>(0);
+  const [width, setWidth] = React.useState<number>(0);
   const DropdownRef = React.useRef<any>(null);
 
   React.useEffect(() => {
     setIndex(0);
     setHiddenCount(0);
-  }, [options]);
+    setWidth(DropdownRef.current?.clientWidth || 0);
+  }, [options, expanded]);
 
   React.useEffect(() => {
     function handleClickOutSide(event: MouseEvent) {
@@ -80,16 +85,18 @@ const Dropdown: React.FC<Props> = ({
       document.removeEventListener('keydown', handleArrowKeyDown);
     }
   }, [expanded, options, index]);
+  const list = options.slice(hiddenCnt, hiddenCnt + maxLimit);
   return (
     <Container
       className='tt-menu'
       open={expanded}
       ref={DropdownRef}
-      x={position ? position.x : undefined}
+      x={position ? (ParentRef && ParentRef.current && (position.x + width > ParentRef.current.clientWidth) ? -1 : position.x) : undefined}
       y={position ? position.y : undefined}
       max={maxLimit}
+      {...rest}
     >
-      {options.slice(hiddenCnt, hiddenCnt + maxLimit).map((option, _index) => (
+      {list.map((option, _index) => (
           <Item
             key={_index}
             className={`tt-suggestion tt-selectable${index - hiddenCnt === _index ? ' tt-cursor': ''}`}
@@ -109,8 +116,8 @@ const Dropdown: React.FC<Props> = ({
 const Container = styled.div<{open: boolean,x?: number,y?: number, max: number}>`
   position: absolute;
   top: ${props => props.y ? props.y + 'px' : '100%'} !important;
-  left: ${props => props.x ? props.x : 0}px !important;
-  right: auto !important;
+  left: ${props => props.x ? (props.x < 0 ? 'auto' : props.x + 'px') : '0px'} !important;
+  right: ${props => props.x && props.x < 0 ? '0px' : 'auto'} !important;
   margin-top: 7px !important;
   padding: 0px !important;
   border-radius: 5px;
