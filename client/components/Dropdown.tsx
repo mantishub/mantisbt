@@ -118,7 +118,7 @@ const Container = styled.div<{open: boolean,x?: number,y?: number, max: number}>
   top: ${props => props.y ? props.y + 'px' : '100%'} !important;
   left: ${props => props.x ? (props.x < 0 ? 'auto' : props.x + 'px') : '0px'} !important;
   right: ${props => props.x && props.x < 0 ? '0px' : 'auto'} !important;
-  margin-top: 7px !important;
+  margin-top: 0px !important;
   padding: 0px !important;
   border-radius: 5px;
   overflow: hidden;

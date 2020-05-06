@@ -2,38 +2,29 @@ import React from 'react';
 import styled from 'styled-components';
 import Dropdown from './Dropdown';
 
-const GetCoords = (textArea: any, index: number, symbol: any) => {
+const GetCoords = (textArea: any, index: number) => {
   let replica = document.createElement('div');
+  document.body.appendChild(replica);
   const copyStyle = getComputedStyle(textArea as Element);
   for (const prop of copyStyle) {
     replica.style[(prop as any)] = copyStyle[(prop as any)];
   }
-  replica.style.height = 'auto';
-  replica.style.width = 'auto';
+  replica.style.whiteSpace = 'pre-wrap';
+  replica.style.position = 'absolute';
+  replica.style.visibility = 'hidden';
+
+  replica.textContent = '\n' + textArea.value.substring(0, index);
   let span = document.createElement('span');
+  span.textContent = textArea.value.substring(0, index) || '.';
   replica.appendChild(span);
-
-  let content = textArea.value.substr(0, index) + symbol;
-  let contentLines = content.split(/[\n\r]/g);
-  let currentline = content.substr(0, content.selectionStart).split(/[\n\r]/g).length;
-  let replicaContent = '';
-
-  contentLines.map((l: any, i: any) => {
-    if (i === currentline - 1 && i < contentLines.length) {
-      replicaContent += contentLines[i];
-      return l;
-    }
-    replicaContent += '\n';
-  });
-  span.innerHTML = replicaContent.replace(/\n$/, '\n^A');
-  document.body.appendChild(replica);
-  const { offsetWidth: spanWidth, offsetHeight: spanHeight } = span;
+  
+  const coordinates = {
+    y: span.offsetTop + parseInt(copyStyle['borderTopWidth']),
+    x: span.offsetLeft + parseInt(copyStyle['borderLeftWidth'])
+  };
   document.body.removeChild(replica);
 
-  return {
-    x: (spanWidth > textArea.offsetWidth ? textArea.offsetWidth : spanWidth) + textArea.offsetLeft,
-    y: (spanHeight > textArea.offsetHeight ? textArea.offsetHeight: spanHeight) + textArea.offsetTop
-  };
+  return coordinates;
 };
 
 interface Props {
@@ -103,7 +94,7 @@ const MentionInput: React.FC<Props> = ({
 
     if (startPos > -1 && startPos != startAt) {
       setExpanded(true);
-      const coord = GetCoords(ParentRef.current, startPos, symbol);
+      const coord = GetCoords(ParentRef.current, startPos);
       setPosition(coord);
       setStartAt(startPos);
     }
