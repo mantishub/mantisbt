@@ -41,6 +41,7 @@ if (document.getElementById('bugnote_text')) {
       ReactDOM.render(
         <MentionInput
           mentionList={data}
+          secondaryField='real_name'
           fieldId='bugnote_text'
           fieldStyle={noteElement.getAttribute('class') || undefined}
           fieldRows={noteElement.getAttribute('rows') ? parseInt(noteElement.getAttribute('rows')!) : undefined}
