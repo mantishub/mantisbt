@@ -7,6 +7,23 @@ export class IssueService {
     this.issueId = issueId;
   }
 
+  public static async GetIssues() {
+    const apiUrl: string = `api/rest/issues`;
+
+    let response: AxiosResponse<any>;
+    try {
+      response = await axios.get<any>(apiUrl);
+    }
+    catch (e) {
+      if (e.response && e.response.data)
+        throw new Error(e.response.data.message);
+      else
+        throw new Error(e);
+    }
+
+    return response.data.issues || [];
+  }
+
   public async RelationshipAdd(relationshipType: number, issueId: number) {
     const addRelationshipUrl: string = `api/rest/issues/${this.issueId}/relationships`;
     const issueViewPageUrl: string = `api/rest/pages/issues/${this.issueId}/view`;
