@@ -149,7 +149,7 @@ const MentionInput: React.FC<Props> = ({
           ) : (
             <React.Fragment>
               <span>{item[mentionList[mentionIndex].field].toString()}</span>
-              {mentionList[mentionIndex].secondaryField ? <small>{item[mentionList[mentionIndex].secondaryField!].toString()}</small> : null}
+              {mentionList[mentionIndex].secondaryField && item[mentionList[mentionIndex].secondaryField!] ? <small>{item[mentionList[mentionIndex].secondaryField!].toString()}</small> : null}
             </React.Fragment>
           )
         }}
