@@ -123,6 +123,7 @@ function rest_internal_issue_mention_candidates( \Slim\Http\Request $p_request, 
 	$t_issue_id = isset( $p_args['id'] ) ? (int)$p_args['id'] : '';
 
 	$t_users = array();
+	$t_issues = array();
 
 	$t_user_id = auth_get_current_user_id();
 	if( !empty( $t_issue_id ) && bug_exists( $t_issue_id ) && access_has_bug_level( VIEWER, $t_issue_id, $t_user_id ) ) {
@@ -175,9 +176,48 @@ function rest_internal_issue_mention_candidates( \Slim\Http\Request $p_request, 
 		unset( $t_users[$t_user_id] );
 
 		$t_users = array_values( $t_users );
+
+		# Add related issues to auto-complete candidates
+		$t_issue_candidates = array();
+		if( isset( $t_issue['relationships'] ) ) {
+			foreach( $t_issue['relationships'] as $t_relationship ) {
+				$t_issue_candidate = array(
+					'id' => $t_relationship['id'],
+					'summary' => $t_relationship['issue']['summary'],
+				);
+
+				$t_issue_candidates[$t_issue_candidate['id']] = $t_issue_candidate;
+			}
+		}
+
+		# Add recently visited issues to auto-complete candidates
+		$t_visited_issues = last_visited_get_array();
+		foreach( $t_visited_issues as $t_visited_issue_id ) {
+			$t_visited_issue_id = (int)$t_visited_issue_id;
+
+			if( isset( $t_issue_candidates[$t_visited_issue_id] ) ||
+			    !bug_exists( $t_visited_issue_id ) ||
+			    !access_has_bug_level( VIEWER, $t_visited_issue_id, $t_user_id ) ) {
+				continue;
+			}
+
+			$t_issue_data = bug_get( $t_visited_issue_id );
+			$t_issue_candidate = array(
+				'id' => $t_visited_issue_id,
+				'summary' => $t_issue_data->summary,
+			);
+
+			$t_issue_candidates[$t_visited_issue_id] = $t_issue_candidate;
+		}
+
+		unset( $t_issue_candidates[$t_issue_id] );
+		$t_issue_candidates = array_values( $t_issue_candidates );
 	}
 
-	$t_result = array( 'users' => $t_users );
+	$t_result = array(
+		'users' => $t_users,
+		'issues' => $t_issue_candidates,
+	);
 
 	return $p_response->withStatus( HTTP_STATUS_SUCCESS )->withJson( $t_result );
 }
