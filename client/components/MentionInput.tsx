@@ -27,11 +27,15 @@ const GetCoords = (textArea: any, index: number) => {
   return coordinates;
 };
 
-interface Props {
-  symbol?: string;
-  field?: string;
+interface Mention {
+  symbol: string;
+  options: Array<any>;
+  field: string;
   secondaryField?: string;
-  mentionList: Array<any>;
+}
+
+interface Props {
+  mentionList: Array<Mention>;
   fieldId: string;
   fieldStyle?: string;
   fieldRows?: number;
@@ -43,9 +47,6 @@ interface Props {
 }
 
 const MentionInput: React.FC<Props> = ({
-  symbol = '@',
-  field = 'name',
-  secondaryField,
   mentionList,
   onChange,
   renderMentionItem,
@@ -58,7 +59,8 @@ const MentionInput: React.FC<Props> = ({
 }: Props) => {
   const ParentRef = React.useRef<HTMLTextAreaElement>(null);
   const [position, setPosition] = React.useState<{ x: number, y: number }>({ x: -1, y: -1 });
-  const [list, updateMentionList] = React.useState<Array<any>>(mentionList);
+  const [list, updateMentionList] = React.useState<Array<any>>(mentionList[0].options);
+  const [mentionIndex, setMentionIndex] = React.useState<number>(0);
   const [mentionSize, setMentionSize] = React.useState<number>(0);
   const [expanded, setExpanded] = React.useState<boolean>(false);
   const [startAt, setStartAt] = React.useState<number>(-1);
@@ -77,13 +79,19 @@ const MentionInput: React.FC<Props> = ({
     onChange && onChange(value);
 
     const prevValue = value.substring(0, start);
-    let startPos = prevValue.lastIndexOf(`${symbol}`);
+    let _mentionIndex = mentionIndex;
+    const arrLastIndex = mentionList.map(x => prevValue.lastIndexOf(x.symbol));
+    let startPos = Math.max(...arrLastIndex);
     if (startPos > -1 && 
         (prevValue[startPos - 1] === '' ||
          prevValue[startPos - 1] === '\n' ||
          prevValue[startPos - 1] === '\r' ||
          prevValue[startPos - 1] === ' ' ||
-         prevValue[startPos - 1] === undefined)) startPos += symbol.length;
+         prevValue[startPos - 1] === undefined)) {
+            _mentionIndex = arrLastIndex.findIndex(x => x === startPos);
+            setMentionIndex(_mentionIndex);
+            startPos += 1;
+         } 
     
     
     if (character === '\n' || character === '\r' || value.trim() === '') {
@@ -103,7 +111,7 @@ const MentionInput: React.FC<Props> = ({
     if (startPos > -1) {
       setMentionSize(start - startPos);
       const mention = value.substring(startPos, start).toLowerCase();
-      const updatedList = mentionList.filter( x => (x[field] as string).substring(0, start - startPos).toLowerCase() === mention );
+      const updatedList = mentionList[_mentionIndex].options.filter( x => x[mentionList[_mentionIndex].field].toString().substring(0, start - startPos).toLowerCase() === mention );
       updateMentionList(updatedList);
 
       setExpanded(!!updatedList.length);
@@ -111,8 +119,9 @@ const MentionInput: React.FC<Props> = ({
   }
 
   const handleMentionInsert = (value: string) => {
+    const _mentionItem = mentionList[mentionIndex];
     const textArea = ParentRef.current!;
-    const startPos = textArea.value.substring(0, textArea.selectionStart).lastIndexOf(`${symbol}`) + symbol.length;
+    const startPos = textArea.value.substring(0, textArea.selectionStart).lastIndexOf(_mentionItem.symbol) + _mentionItem.symbol.length;
     const first = textArea.value.substr(0, startPos);
     const last = textArea.value.substr(
       startPos + mentionSize,
@@ -140,13 +149,13 @@ const MentionInput: React.FC<Props> = ({
             renderMentionItem(item)
           ) : (
             <React.Fragment>
-              <span>{item[field]}</span>
-              {secondaryField ? <small>{item[secondaryField]}</small> : null}
+              <span>{item[mentionList[mentionIndex].field].toString()}</span>
+              {mentionList[mentionIndex].secondaryField ? <small>{item[mentionList[mentionIndex].secondaryField!].toString()}</small> : null}
             </React.Fragment>
           )
         }}
         onHide={() => setExpanded(false)}
-        onSelectItem={(item) => handleMentionInsert(item[field])}
+        onSelectItem={(item) => handleMentionInsert(item[mentionList[mentionIndex].field].toString())}
         />
       <textarea
         id={fieldId}
