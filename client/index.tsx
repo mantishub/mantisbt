@@ -37,8 +37,10 @@ if (document.getElementById('bugnote_text')) {
   }
 
   const renderMentionInput = async () => {
-    const arrIssues = await IssueService.GetIssues();
-    const arrUsers = await new IssueService(issueId).MentionUsersAutoComplete();
+    const responseData = await new IssueService(issueId).MentionUsersAutoComplete();
+    const arrUsers = responseData.users;
+    const arrIssues = responseData.issues;
+    
     ReactDOM.render(
       <MentionInput
         mentionList={[{
