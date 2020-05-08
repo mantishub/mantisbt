@@ -36,26 +36,22 @@ if (document.getElementById('bugnote_text')) {
     issueId = JSON.parse(document.getElementById('issue-id')?.dataset.issue!);
   }
 
-  if (issueId > 0) {
-    (new IssueService(issueId)).MentionUsersAutoComplete().then(data => {
-      ReactDOM.render(
-        <MentionInput
-          mentionList={data}
-          secondaryField='real_name'
-          fieldId='bugnote_text'
-          fieldStyle={noteElement.getAttribute('class') || undefined}
-          fieldRows={noteElement.getAttribute('rows') ? parseInt(noteElement.getAttribute('rows')!) : undefined}
-          fieldCols={noteElement.getAttribute('cols') ? parseInt(noteElement.getAttribute('cols')!) : undefined}
-          fieldName={noteElement.getAttribute('name') || undefined}
-          value={noteElement.textContent || ''} />,
-        noteElement.parentElement!
-      );
-    });
-  }
-  else {
+  const renderMentionInput = async () => {
+    const arrIssues = await IssueService.GetIssues();
+    const arrUsers = await new IssueService(issueId).MentionUsersAutoComplete();
     ReactDOM.render(
       <MentionInput
-        mentionList={[]}
+        mentionList={[{
+          symbol: '@',
+          options: arrUsers,
+          field: 'name',
+          secondaryField: 'real_name'
+        }, {
+          symbol: '#',
+          options: arrIssues,
+          field: 'id',
+          secondaryField: 'summary'
+        }]}
         fieldId='bugnote_text'
         fieldStyle={noteElement.getAttribute('class') || undefined}
         fieldRows={noteElement.getAttribute('rows') ? parseInt(noteElement.getAttribute('rows')!) : undefined}
@@ -65,4 +61,6 @@ if (document.getElementById('bugnote_text')) {
       noteElement.parentElement!
     );
   }
+
+  issueId > 0 && renderMentionInput();
 }

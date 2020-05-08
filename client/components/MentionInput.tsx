@@ -9,13 +9,12 @@ const GetCoords = (textArea: any, index: number) => {
   for (const prop of copyStyle) {
     replica.style[(prop as any)] = copyStyle[(prop as any)];
   }
-  replica.style.whiteSpace = 'pre-wrap';
+  replica.style.whiteSpace = 'break-spaces';
   replica.style.position = 'absolute';
   replica.style.visibility = 'hidden';
 
   replica.textContent = '\n' + textArea.value.substring(0, index);
-  let span = document.createElement('span');
-  span.textContent = textArea.value.substring(0, index) || '.';
+  const span = document.createElement('span');
   replica.appendChild(span);
   
   const coordinates = {
